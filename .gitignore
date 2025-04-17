@@ -1,0 +1,17 @@
+# Node
+my-fitness-app/node_modules/
+my-fitness-app/dist/
+my-fitness-app/.env
+
+# Java Build
+demo/target/
+demo/.idea/
+demo/.classpath
+demo/.project
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
