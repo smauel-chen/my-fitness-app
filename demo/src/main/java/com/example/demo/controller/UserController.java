@@ -11,21 +11,38 @@ import java.time.temporal.WeekFields;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import com.example.demo.entity.User;
-import com.example.demo.entity.WorkoutSession;
-import com.example.demo.entity.WorkoutSet;
-import com.example.demo.entity.WorkoutType;
+//entity
+import com.example.demo.entity.*;
+
 //repository
-import com.example.demo.repository.UserRepository;
-import com.example.demo.repository.WorkoutSessionRepository;
-import com.example.demo.repository.WorkoutSetRepository;
-import com.example.demo.repository.WorkoutTypeRepository;
+import com.example.demo.repository.*;
+
+import jakarta.validation.Valid;
 
 //security
 import com.example.demo.config.JwtUtil;
+import com.example.demo.dto.LoginRequestDTO;
+import com.example.demo.dto.LoginResponseDTO;
+import com.example.demo.dto.MuscleGroupTotalDTO;
+import com.example.demo.dto.PopularTypesDTO;
+//dto
+import com.example.demo.dto.UserDTO;
+import com.example.demo.dto.UserRequestDTO;
+import com.example.demo.dto.UserUpdatedRequestDTO;
+import com.example.demo.dto.WeeklyFrequencyDTO;
+import com.example.demo.dto.WeeklySummaryDTO;
+import com.example.demo.dto.WorkoutProgressDTO;
+import com.example.demo.dto.WorkoutSessionDTO;
+import com.example.demo.dto.WorkoutSessionRequestDTO;
+import com.example.demo.dto.WorkoutSessionSummaryDTO;
+import com.example.demo.dto.WorkoutSetDTO;
+import com.example.demo.dto.WorkoutSetRequestDTO;
+import com.example.demo.dto.WorkoutTypeDTO;
+import com.example.demo.dto.WorkoutTypeRequestDTO;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 
 @CrossOrigin(origins = "http://localhost:5173")
 @RestController
@@ -73,20 +90,25 @@ public class UserController {
     }
     
     @PostMapping("/user")
-    public User createUser(@RequestBody User user) {
+    public ResponseEntity<?> createUser(@Valid @RequestBody UserRequestDTO userRequestDTO) {
+        User user = new User(
+            userRequestDTO.getName(),
+            userRequestDTO.getAge(),
+            userRequestDTO.getPassword()
+        );
+    
         User saved = userRepository.save(user);
-        System.out.println("test: " + user.getName() +"/n");
-        
-        log.info("ID: {}, name: {}, age: {}", saved.getId(), saved.getName(), saved.getAge());
-        return saved;
+        log.info("Created user: ID={}, Name={}, Age={}", saved.getId(), saved.getName(), saved.getAge());
+        return ResponseEntity.status(HttpStatus.CREATED).body("User created successfully");
     }
+    
 
     //PUT update
     @PutMapping("/user/{id}")
-    public ResponseEntity<?> updateUser(@PathVariable Long id, @RequestBody User updatedUser) {
+    public ResponseEntity<?> updateUser(@PathVariable Long id, @RequestBody UserUpdatedRequestDTO userUpdatedRequestDTO) {
         return userRepository.findById(id).<ResponseEntity<?>>map(user -> {
-            user.setName(updatedUser.getName());
-            user.setAge(updatedUser.getAge());
+            user.setName(userUpdatedRequestDTO.getName());
+            user.setAge(userUpdatedRequestDTO.getAge());
             userRepository.save(user);
             return ResponseEntity.ok(user);
         }).orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body("No such a user."));
@@ -94,8 +116,11 @@ public class UserController {
 
     
     @GetMapping("/users")
-    public List<User> getAllUsers() {
-        return userRepository.findAll();
+    public ResponseEntity<List<UserDTO>> getAllUsers() {
+        List<UserDTO> userDTOs = userRepository.findAll().stream()
+            .map(user -> new UserDTO(user.getId(), user.getName(), user.getAge()))
+            .collect(Collectors.toList());
+        return ResponseEntity.ok(userDTOs);
     }    
 
     @DeleteMapping("/user/{id}")
@@ -105,40 +130,64 @@ public class UserController {
             return ResponseEntity.ok("Deleted user: " + user.getName());
         }).orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body("No such a user."));
     }
-        
+
     @GetMapping("/user/{id}")
-    public ResponseEntity<?> getXXX(@PathVariable Long id) {
-        return userRepository.findById(id).<ResponseEntity<?>>map(user -> ResponseEntity.ok(user)).orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body("No such a user"));
+    public ResponseEntity<?> getUserById(@PathVariable Long id) {
+        Optional<User> optionalUser = userRepository.findById(id);
+        if (optionalUser.isPresent()) {
+            User user = optionalUser.get();
+            UserDTO dto = new UserDTO(user.getId(), user.getName(), user.getAge());
+            return ResponseEntity.ok(dto);
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No such a user");
+        }
     }
-    
     
     @PostMapping("/user/{id}/session")
     public ResponseEntity<?> addWorkoutSession(
             @PathVariable Long id,
-            @RequestBody WorkoutSession workoutSession) {
-                System.out.println("總共有幾組 set: " + workoutSession.getSets().size());
-                log.info("Session sets數量：" + workoutSession.getSets().size());
-                log.info("Session user是否為 null:" + (workoutSession.getUser() == null));
-                
-        return userRepository.findById(id).map(user -> {
+            @RequestBody WorkoutSessionRequestDTO workoutSessionRequestDTO) {
 
-            for(WorkoutSet set:workoutSession.getSets()){
-                set.setSession(workoutSession);
-            }
-            workoutSession.setUser(user);
-            workoutSessionRepository.save(workoutSession);
-            return ResponseEntity.ok("Create session" + workoutSession);
-        }).orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body("No such a session"));
+        return userRepository.findById(id).map(user -> {
+            // 1. 建立 WorkoutSession 物件，並設定基本欄位與 user
+            WorkoutSession session = new WorkoutSession();
+            session.setDate(workoutSessionRequestDTO.getDate());
+            session.setNote(workoutSessionRequestDTO.getNote());
+            session.setUser(user);
+
+            // 2. 建立每一組 set 的實體物件並與 session 關聯
+            List<WorkoutSet> sets = workoutSessionRequestDTO.getSets().stream()
+                .map(dto -> {
+                    WorkoutSet set = new WorkoutSet();
+                    set.setTypeId(dto.getTypeId());
+                    set.setWeight(dto.getWeight());
+                    set.setReps(dto.getReps());
+                    set.setSession(session); // 設定關聯
+                    return set;
+                })
+                .collect(Collectors.toList());
+
+            session.setSets(sets); // session 綁定這些 sets
+
+            // 3. 存入資料庫（因為 cascade 設定所以 sets 也會一併儲存）
+            workoutSessionRepository.save(session);
+
+            return ResponseEntity.ok("Create session for user: " + user.getName());
+        }).orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body("No such user"));
     }
 
     @PostMapping("/user/{id}/session/{sessionID}/set")
     public ResponseEntity<?> addWorkoutSetToSession(
             @PathVariable Long id, @PathVariable Long sessionID,
-            @RequestBody WorkoutSet workoutSet){
+            @RequestBody WorkoutSetRequestDTO workoutSetRequestDTO){
         return workoutSessionRepository.findByIdAndUser_Id(sessionID, id).map(workoutSession -> {
-            workoutSet.setSession(workoutSession);
-            workoutSetRepository.save(workoutSet);    
-            return ResponseEntity.ok("Create a new set with type:" + findWorkoutTypeNameByTypeId(workoutSet.getTypeId()));
+            WorkoutSet set = new WorkoutSet();
+            set.setReps(workoutSetRequestDTO.getReps());
+            set.setWeight(workoutSetRequestDTO.getWeight());
+            set.setTypeId(workoutSetRequestDTO.getTypeId());
+            set.setSession(workoutSession);
+            workoutSetRepository.save(set);
+            return ResponseEntity.ok("Create a new set with type:" + findWorkoutTypeNameByTypeId(set.getTypeId()));
         }).orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body("No such a id or session"));
     }   
 
@@ -146,47 +195,38 @@ public class UserController {
     public ResponseEntity<?> getWorkoutSessions(
             @PathVariable Long id){
         return userRepository.findById(id).<ResponseEntity<?>>map(user -> {
-            List<WorkoutSession> sessions = workoutSessionRepository.findByUser_Id(user.getId());
-            List<Map<String, Object>> ret = sessions.stream()
+            List<WorkoutSessionDTO> sessionDTOs = workoutSessionRepository.findByUser_Id(user.getId()).stream()
                 .map(session -> {
-                    Map<String, Object> sessionMap = new HashMap<>();
-                    sessionMap.put("sessionId", session.getId());
-                    sessionMap.put("date", session.getDate());
-                    sessionMap.put("note", session.getNote());
-
-                    List<Map<String, Object>> sets = session.getSets().stream()
-                        .map(set -> {
-                            Map<String, Object> setMap = new HashMap<>();
-                            setMap.put("id", set.getId());
-                            setMap.put("type", findWorkoutTypeNameByTypeId(set.getTypeId()));
-                            setMap.put("weight", set.getWeight());
-                            setMap.put("reps", set.getReps());
-                            return setMap;
-                        })
+                    List<WorkoutSetDTO> setDTOs = workoutSetRepository.findBySessionId(session.getId()).stream()
+                        .map(set -> new WorkoutSetDTO(
+                            set.getId(),
+                            findWorkoutTypeNameByTypeId(set.getTypeId()), 
+                            set.getWeight(), 
+                            set.getReps()
+                        ))
                         .collect(Collectors.toList());
 
-                    sessionMap.put("sets", sets);
-                    return sessionMap;
+                        return new WorkoutSessionDTO(
+                            session.getId(), 
+                            session.getDate(), 
+                            session.getNote(), 
+                            setDTOs);
                 })
                 .collect(Collectors.toList());
-                return ResponseEntity.ok(ret);
+                
+                return ResponseEntity.ok(sessionDTOs);
         }).orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body("No such a user"));
     }
 
     @GetMapping("/user/{id}/sessions/summary")
-    public ResponseEntity<?> getWorkoutSessionSummary(@PathVariable Long id) {
-
+    public ResponseEntity<?> getWorkoutSessionSummaryDTO(@PathVariable Long id) {
         return userRepository.findById(id).<ResponseEntity<?>>map(user -> {
-            List<Map<String, Object>> ret = user.getWorkoutSessions().stream().map(session -> {
-                Integer totalWeight = calculateTotalWeight(session.getSets());
-                Map<String, Object> entry = new HashMap<>();
-                entry.put("sessionId", session.getId());
-                entry.put("date", session.getDate());
-                entry.put("note", session.getNote());
-                entry.put("totalWeight", totalWeight);
-                return entry;
-            }).collect(Collectors.toList());
-            return ResponseEntity.ok(ret);
+            List<WorkoutSessionSummaryDTO> summaryDTO = workoutSessionRepository.findByUser_Id(user.getId()).stream()
+                .map(session -> {
+                    Integer totalWeihgt = calculateTotalWeight(workoutSetRepository.findBySessionId(session.getId()));
+                    return new WorkoutSessionSummaryDTO(session.getId(), session.getDate(), session.getNote(), totalWeihgt);
+                }).collect(Collectors.toList());
+            return ResponseEntity.ok(summaryDTO);
         }).orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body("No such a user"));
     }
 
@@ -195,9 +235,9 @@ public class UserController {
         @PathVariable Long id
     ){  
         return userRepository.findById(id).<ResponseEntity<?>>map(user -> {
-            Map<String, Integer> weeklyTotals = new HashMap<>();
+            List<WeeklySummaryDTO> weeklySummaryDTOs = new ArrayList<>();
             DateTimeFormatter dTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-            for(WorkoutSession workoutSession:user.getWorkoutSessions()){
+            for(WorkoutSession workoutSession:workoutSessionRepository.findByUser_Id(user.getId())){
                 LocalDate date = LocalDate.parse(workoutSession.getDate(),dTimeFormatter);
                 WeekFields weekFields = WeekFields.of(Locale.getDefault());
                 Integer weekNumber = date.get(weekFields.weekOfWeekBasedYear());
@@ -205,12 +245,12 @@ public class UserController {
                 String weekKey = year + "-W" + weekNumber;
 
                 Integer sessionTotal = 0;
-                for(WorkoutSet workoutSet:workoutSession.getSets()){
+                for(WorkoutSet workoutSet:workoutSetRepository.findBySessionId(workoutSession.getId())){
                     sessionTotal += workoutSet.getReps()*workoutSet.getWeight();
                 }
-                weeklyTotals.put(weekKey, weeklyTotals.getOrDefault(weekKey, 0) + sessionTotal);    
+                weeklySummaryDTOs.add(new WeeklySummaryDTO(weekKey, sessionTotal));
             }   
-            return ResponseEntity.ok(weeklyTotals);
+            return ResponseEntity.ok(weeklySummaryDTOs);
         }).orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body("No such a user"));
     }
 
@@ -248,79 +288,98 @@ public class UserController {
     
     @PutMapping("/user/{id}/session/{sessionId}/set/{setId}")
     public ResponseEntity<?> updateWorkoutSet(
-        @PathVariable Long id, @PathVariable Long sessionId, @PathVariable Long setId,
-        @RequestBody WorkoutSet newSet
+        @PathVariable Long id,
+        @PathVariable Long sessionId, 
+        @PathVariable Long setId,
+        @RequestBody WorkoutSetRequestDTO newSetDTO
     ){
         return workoutSessionRepository.findByIdAndUser_Id(sessionId, id).map((session) -> {
-            workoutSetRepository.findById(setId).map(existingSet -> {
-                existingSet.setTypeId(id);
-                existingSet.setReps(newSet.getReps());
-                existingSet.setWeight(newSet.getWeight());
+            return workoutSetRepository.findById(setId).map(existingSet -> {
+                existingSet.setTypeId(newSetDTO.getTypeId());
+                existingSet.setReps(newSetDTO.getReps());
+                existingSet.setWeight(newSetDTO.getWeight());
                 workoutSetRepository.save(existingSet);
                 return ResponseEntity.ok("Update set: " + existingSet.getId());
             }).orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body("No such a set"));
-
-            return ResponseEntity.ok("Create newSet:" + findWorkoutTypeNameByTypeId(newSet.getTypeId()) + newSet.getId());
         }).orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body("No such a user or session"));
     }
 
     @GetMapping("/user/{id}/workouts/popular-types")
     public ResponseEntity<?> getPopularWorkoutTypes(@PathVariable Long id){
-
         return userRepository.findById(id).<ResponseEntity<?>>map(user -> {
-            Map<String, Integer> ret = new HashMap<>();
-            for(WorkoutSession session:user.getWorkoutSessions()){
-                for(WorkoutSet set:session.getSets()){
-                    String name = findWorkoutTypeNameByTypeId(set.getTypeId());
-                    ret.put(name, ret.getOrDefault(name, 0) + 1);
+                Map<String, Integer> countMap = new HashMap<>();
+                for(WorkoutSession session:workoutSessionRepository.findByUser_Id(user.getId())){
+                    for(WorkoutSet set:workoutSetRepository.findBySessionId(session.getId())){
+                        String type = findWorkoutTypeNameByTypeId(set.getTypeId());
+                        countMap.put(type, countMap.getOrDefault(type, 0) + 1);
+                    }
                 }
-            }
-            return ResponseEntity.ok(ret);
+                List<PopularTypesDTO> popularTypesDTOs = countMap.entrySet().stream()
+                    .map(entry -> new PopularTypesDTO(entry.getKey(), entry.getValue()))
+                    .collect(Collectors.toList());
+            return ResponseEntity.ok(popularTypesDTOs);
         }).orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body("No such a user"));
     }
 
+    // @GetMapping("/user/{id}/workouts/progress")
+    // public ResponseEntity<?> getWorkoutProgressByType(
+    //     @PathVariable Long id, @RequestParam Long TypeId
+    // ){
+    //     return userRepository.findById(id).<ResponseEntity<?>>map(user -> {
+    //         List<WorkoutProgressDTO> progressDTOs = new ArrayList<>();
+    //         for(WorkoutSession session:workoutSessionRepository.findByUser_Id(user.getId())){
+    //             Integer toptalWeight = workoutSetRepository.findBySessionId(session.getId()).stream()
+    //             .filter(set -> set.getTypeId().equals(TypeId))
+    //             .mapToInt(set -> set.getReps() * set.getWeight())
+    //             .sum();
+    //             if(toptalWeight > 0){
+    //                 progressDTOs.add(new WorkoutProgressDTO(session.getDate(),toptalWeight));
+    //             }
+    //         }
+    //         return ResponseEntity.ok(progressDTOs); 
+    //     }).orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body("No such a user"));
+    // }
+
+    //stream version
     @GetMapping("/user/{id}/workouts/progress")
     public ResponseEntity<?> getWorkoutProgressByType(
-        @PathVariable Long id, @RequestParam Long TypeId
+        @PathVariable Long id, @RequestParam Long typeId
     ){
         return userRepository.findById(id).<ResponseEntity<?>>map(user -> {
-            List<Map<String, Object>> ret = user.getWorkoutSessions().stream().map(session -> {
-                Map<String, Object> entry = new HashMap<>();
-                Integer toptalWeight = session.getSets().stream()
-                    .filter(set -> set.getTypeId().equals(TypeId))
-                    .mapToInt(set -> set.getReps() * set.getWeight())
-                    .sum();
-                entry.put("date", session.getDate());
-                entry.put("totalWeight", toptalWeight);
-                return entry;
-            }).filter(entry -> (Integer)entry.get("totalWeight") > 0)
+            List<WorkoutProgressDTO> progressDTOs = workoutSessionRepository.findByUser_Id(user.getId()).stream().map(session -> {
+                Integer totalWeight = workoutSetRepository.findBySessionId(session.getId()).stream()
+                .filter(set -> set.getTypeId().equals(typeId))
+                .mapToInt(set -> set.getReps() * set.getWeight())
+                .sum();                   
+                return new WorkoutProgressDTO(session.getDate(), totalWeight);
+            })
+            .filter(dto -> dto.getTotalWeight() > 0)
             .collect(Collectors.toList());
-            return ResponseEntity.ok(ret);
-        }).orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body("No such a user")); 
+            return ResponseEntity.ok(progressDTOs);
+        }).orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body("No such a user"));
     }
 
     @GetMapping("/user/{id}/sessions/weekly-frequency")
     public ResponseEntity<?> getWeeklyWorkoutDays(@PathVariable Long id){
-
         return userRepository.findById(id).<ResponseEntity<?>>map(user -> {
-            Map<String, Set<String>> weekToDays = new HashMap<>();
             DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-
-            for(WorkoutSession session:user.getWorkoutSessions()){
-                LocalDate date = LocalDate.parse(session.getDate(), dateTimeFormatter);
-                WeekFields weekFields = WeekFields.of(Locale.getDefault());
-                Integer weekNumber = date.get(weekFields.weekOfWeekBasedYear());
-                Integer year = date.getYear();
-                String weekKey = year + "-W" + weekNumber;
-    
-                weekToDays.putIfAbsent(weekKey, new HashSet<>());
-                weekToDays.get(weekKey).add(session.getDate());
-            }
-            Map<String, Integer> ret = new HashMap<>();
-            for(Map.Entry<String, Set<String>> entry:weekToDays.entrySet()){
-                ret.put(entry.getKey(), entry.getValue().size());
-            }
-            return ResponseEntity.ok(ret);            
+            WeekFields weekFields = WeekFields.of(Locale.getDefault());
+            Map<String, Set<String>> weekToDates = workoutSessionRepository.findByUser_Id(user.getId())
+            .stream()
+            .collect(Collectors.groupingBy(
+                session -> {
+                    LocalDate date = LocalDate.parse(session.getDate(), dateTimeFormatter);
+                    int week = date.get(weekFields.weekOfWeekBasedYear());
+                    int year = date.getYear();
+                    return year + "-W" + week;
+                },
+                Collectors.mapping(WorkoutSession::getDate, Collectors.toSet())
+            ));
+            List<WeeklyFrequencyDTO> weeklyFrequencyDTOs = weekToDates.entrySet().stream()
+                .map(entry -> {
+                    return new WeeklyFrequencyDTO(entry.getKey(), entry.getValue().size());
+                }).collect(Collectors.toList());
+            return ResponseEntity.ok(weeklyFrequencyDTOs);
         }).orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body("No such a user"));
     }
 
@@ -339,7 +398,10 @@ public class UserController {
                     }
                 }
             }
-            return ResponseEntity.ok(groupTotals);            
+            List<MuscleGroupTotalDTO> muscleGroupTotalDTOs = groupTotals.entrySet().stream()
+                .map(entry -> new MuscleGroupTotalDTO(entry.getKey(), entry.getValue()))
+                .collect(Collectors.toList());
+            return ResponseEntity.ok(muscleGroupTotalDTOs);
         }).orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body("No such a user"));
     }
 
@@ -349,10 +411,22 @@ public class UserController {
         WorkoutType saved =  workoutTypeRepository.save(workoutType);
         return ResponseEntity.ok(saved);
     }
+    @PostMapping("/workout-types")
+    public ResponseEntity<?> createWorkoutType(@RequestBody WorkoutTypeRequestDTO workoutTypeRequestDTO){
+        WorkoutType saved =  new WorkoutType(
+        workoutTypeRequestDTO.getMuscleGroup(),
+        workoutTypeRequestDTO.getName()
+        );
+        workoutTypeRepository.save(saved);
+        return ResponseEntity.ok(saved);
+    }
 
     @GetMapping("/workout-types")
     public ResponseEntity<?> getWorkoutType(){
-        return ResponseEntity.ok(workoutTypeRepository.findAll());
+        List<WorkoutTypeDTO> workoutTypeDTOs = workoutTypeRepository.findAll().stream()
+            .map(workoutType -> new WorkoutTypeDTO(workoutType.getId(), workoutType.getName(), workoutType.getMuscleGroup()))
+            .collect(Collectors.toList());
+        return ResponseEntity.ok(workoutTypeDTOs);  
     }
 
     @DeleteMapping("/workout-types/{id}")
@@ -368,18 +442,31 @@ public class UserController {
     
 
     //login section
-    @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody Map<String, String> credentials) {
-        String name = credentials.get("name");
-        String password = credentials.get("password");
+    //previous without DTO protect
+    // @PostMapping("/login")
+    // public ResponseEntity<?> login(@RequestBody Map<String, String> credentials) {
+    //     String name = credentials.get("name");
+    //     String password = credentials.get("password");
     
-        return userRepository.findByName(name)
-            .filter(user -> user.getPassword().equals(password))
+    //     return userRepository.findByName(name)
+    //         .filter(user -> user.getPassword().equals(password))
+    //         .<ResponseEntity<?>>map(user -> {
+    //             String token = JwtUtil.generateToken(name);
+    //             return ResponseEntity.ok(Map.of("token", token, "userId", user.getId()));
+    //         })
+    //         .orElseGet(() -> ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials."));
+    // }
+
+    @PostMapping("/login")
+    public ResponseEntity<?> login(@RequestBody LoginRequestDTO credentials) {
+        return userRepository.findByName(credentials.getName())
+            .filter(user -> user.getPassword().equals(credentials.getPassword()))
             .<ResponseEntity<?>>map(user -> {
-                String token = JwtUtil.generateToken(name);
-                return ResponseEntity.ok(Map.of("token", token, "userId", user.getId()));
+                String token = JwtUtil.generateToken(user.getName());
+                return ResponseEntity.ok(new LoginResponseDTO(token, user.getId()));
             })
             .orElseGet(() -> ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials."));
     }
+
     //bottom
 }
