@@ -5,14 +5,17 @@ public class ApiErrorResponseDTO {
     private int status;
     private String message;
     private String path;
+    private String name;
 
-    public ApiErrorResponseDTO(int status, String message, String path) {
+    public ApiErrorResponseDTO(int status, String message, String path, String name) {
         this.status = status;
         this.message = message;
         this.path = path;
+        this.name = name;
     }
 
     public int getStatus() { return status; }
     public String getMessage() { return message; }
     public String getPath() { return path; }
+    public String getName() { return name; }
 }
