@@ -426,11 +426,6 @@ public class UserController {
 
     //muscleType controll section
     @PostMapping("/workout-types")
-    public ResponseEntity<?> createWorkoutType(@RequestBody WorkoutType workoutType){
-        WorkoutType saved =  workoutTypeRepository.save(workoutType);
-        return ResponseEntity.ok(saved);
-    }
-    @PostMapping("/workout-types")
     public ResponseEntity<?> createWorkoutType(@RequestBody WorkoutTypeRequestDTO workoutTypeRequestDTO){
         WorkoutType saved =  new WorkoutType(
         workoutTypeRequestDTO.getMuscleGroup(),
