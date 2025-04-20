@@ -20,14 +20,14 @@ public class JwtUtil {
                 .compact();
     }
 
-    public static String validateToken(String token) {
+    public static Claims validateToken(String token) {
         try {
             return Jwts.parserBuilder()
                     .setSigningKey(key)
                     .build()
                     .parseClaimsJws(token)
-                    .getBody()
-                    .getSubject(); // 回傳 username
+                    .getBody();
+                    //.getSubject(); // 回傳 username
         } catch (JwtException e) {
             return null;
         }

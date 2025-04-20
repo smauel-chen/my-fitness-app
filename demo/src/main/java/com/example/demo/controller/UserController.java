@@ -1,15 +1,18 @@
 package com.example.demo.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.WeekFields;
 import java.util.*;
 import java.util.stream.Collectors;
+
+//config
+
 
 //entity
 import com.example.demo.entity.*;
@@ -21,11 +24,20 @@ import com.example.demo.repository.*;
 import jakarta.validation.Valid;
 
 //security
+import org.springframework.security.core.Authentication;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+
 import com.example.demo.config.JwtUtil;
+import com.example.demo.dto.ApiSuccessResponseDTO;
+import com.example.demo.dto.EnrollRequestDTO;
 import com.example.demo.dto.LoginRequestDTO;
 import com.example.demo.dto.LoginResponseDTO;
 import com.example.demo.dto.MuscleGroupTotalDTO;
 import com.example.demo.dto.PopularTypesDTO;
+
+
 //dto
 import com.example.demo.dto.UserDTO;
 import com.example.demo.dto.UserRequestDTO;
@@ -45,15 +57,19 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
+
+
 @CrossOrigin(origins = "http://localhost:5173")
 @RestController
 public class UserController {
-    @Autowired
+
+    private final PasswordEncoder passwordEncoder;
+    private final AuthenticationManager authenticationManager;
     private final UserRepository userRepository;
-    
     private final WorkoutSessionRepository workoutSessionRepository;
     private final WorkoutSetRepository workoutSetRepository;
     private final WorkoutTypeRepository workoutTypeRepository;
+
     private static final Logger log = LoggerFactory.getLogger(UserController.class);
 
     //DataBase
@@ -70,11 +86,15 @@ public class UserController {
     UserController( UserRepository userRepository,
                     WorkoutSessionRepository workoutSessionRepository,
                     WorkoutSetRepository workoutSetRepository,
-                    WorkoutTypeRepository workoutTypeRepository) {
+                    WorkoutTypeRepository workoutTypeRepository,
+                    AuthenticationManager authenticationManager,
+                    PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.workoutSessionRepository = workoutSessionRepository;
         this.workoutSetRepository = workoutSetRepository;
         this.workoutTypeRepository = workoutTypeRepository;
+        this.authenticationManager = authenticationManager;
+        this.passwordEncoder = passwordEncoder;
     }
 
     private String findWorkoutTypeNameByTypeId(Long TypeId){
@@ -91,18 +111,22 @@ public class UserController {
                    .mapToInt(set -> set.getWeight() * set.getReps())
                    .sum();
     }
-    
+
     @PostMapping("/user")
-    public ResponseEntity<?> createUser(@Valid @RequestBody UserRequestDTO userRequestDTO) {
-        User user = new User(
-            userRequestDTO.getName(),
-            userRequestDTO.getAge(),
-            userRequestDTO.getPassword()
-        );
-    
-        User saved = userRepository.save(user);
-        log.info("Created user: ID={}, Name={}, Age={}", saved.getId(), saved.getName(), saved.getAge());
-        return ResponseEntity.status(HttpStatus.CREATED).body("User created successfully");
+    public ResponseEntity<ApiSuccessResponseDTO> enrollUser(@RequestBody EnrollRequestDTO enrollRequestDTO) {
+        // 檢查是否已有相同名稱的使用者
+        if (userRepository.findByName(enrollRequestDTO.getName()).isPresent()) {
+            throw new ApiException(ApiErrorCode.USER_ALREADY_EXISTS, "使用者名稱已存在", HttpStatus.BAD_REQUEST);
+        }
+
+        // 加密密碼
+        String encryptedPassword = passwordEncoder.encode(enrollRequestDTO.getPassword());
+
+        User user = new User(enrollRequestDTO.getName(), enrollRequestDTO.getAge(), encryptedPassword);
+        userRepository.save(user);
+
+        ApiSuccessResponseDTO response = new ApiSuccessResponseDTO(201, "註冊成功！");
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
     
 
@@ -454,8 +478,25 @@ public class UserController {
         }
     }
     
-
     //login section
+    @PostMapping("/login")
+    public ResponseEntity<?> login(@RequestBody LoginRequestDTO credentials) {
+        // 建立驗證請求（Spring Security 會透過自定義 Provider 處理）
+        Authentication authRequest = new UsernamePasswordAuthenticationToken(
+            credentials.getName(), credentials.getPassword());
+        //System.out.println("this is bcrypt" + userRepository.findByName(credentials.getName()).get().getPassword());
+        // 驗證過程（會觸發 CustomAuthenticationProvider）
+        Authentication authentication = authenticationManager.authenticate(authRequest);
+
+        // 驗證成功 → 產生 JWT
+        String token = JwtUtil.generateToken(credentials.getName());
+
+        User user = userRepository.findByName(credentials.getName())
+            .orElseThrow(() -> new ApiException(ApiErrorCode.USER_NOT_FOUND, "使用者不存在", HttpStatus.NOT_FOUND));
+
+        return ResponseEntity.ok(new LoginResponseDTO(token, user.getId()));
+    }
+
     //previous without DTO protect
     // @PostMapping("/login")
     // public ResponseEntity<?> login(@RequestBody Map<String, String> credentials) {
@@ -471,17 +512,37 @@ public class UserController {
     //         .orElseGet(() -> ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials."));
     // }
 
-    @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody LoginRequestDTO credentials) {
 
-        return userRepository.findByName(credentials.getName())
-            .filter(user -> user.getPassword().equals(credentials.getPassword()))
-            .<ResponseEntity<?>>map(user -> {
-                String token = JwtUtil.generateToken(user.getName());
-                return ResponseEntity.ok(new LoginResponseDTO(token, user.getId()));
-            })
-            .orElseThrow(() -> new ApiException(ApiErrorCode.INVALID_CREDENTIALS, "帳號密碼錯誤", HttpStatus.UNAUTHORIZED));
-    }
+    // @PostMapping("/login")
+    // public ResponseEntity<?> login(@RequestBody LoginRequestDTO credentials) {
+    //     String name = credentials.getName();
+    //     String password = credentials.getPassword();
+
+    //     // 1. 找使用者
+    //     User user = userRepository.findByName(name)
+    //         .orElseThrow(() -> new ApiException(
+    //             ApiErrorCode.USER_NOT_FOUND,
+    //             "此使用者不存在: " + name,
+    //             HttpStatus.NOT_FOUND
+    //         ));
+
+    //     // 2. 驗證密碼
+    //     if (!user.getPassword().equals(password)) {
+    //         throw new ApiException(
+    //             ApiErrorCode.PASSWORD_INCORRECT,
+    //             "密碼錯誤，請重新輸入",
+    //             HttpStatus.UNAUTHORIZED
+    //         );
+    //     }
+
+    //     // 3. 發 token
+    //     String token = JwtUtil.generateToken(user.getName());
+    //     LoginResponseDTO response = new LoginResponseDTO(token, user.getId());
+
+    //     return ResponseEntity.ok(response);
+    // }
+    
+
 
     //bottom
 }

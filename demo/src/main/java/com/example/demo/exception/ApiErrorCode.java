@@ -2,6 +2,7 @@ package com.example.demo.exception;
 
 public enum ApiErrorCode {
     USER_NOT_FOUND,
+    PASSWORD_INCORRECT,
     SESSION_NOT_FOUND,
     SET_NOT_FOUND,
     TYPE_NOT_FOUND,
@@ -10,5 +11,7 @@ public enum ApiErrorCode {
     MISSING_FIELD,
     UNAUTHORIZED_ACCESS,
     INTERNAL_ERROR,
-    SESSION_FOR_USER_NOT_FOUND // catch error findbyidanduserid
+    SESSION_FOR_USER_NOT_FOUND, // catch error findbyidanduserid
+    TOKEN_INVALID,
+    USER_ALREADY_EXISTS
 }
