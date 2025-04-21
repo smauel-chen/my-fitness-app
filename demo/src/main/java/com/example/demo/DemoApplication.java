@@ -12,8 +12,10 @@ import com.example.demo.config.JwtFilter;
 
 @SpringBootApplication
 public class DemoApplication {
+	
 
 	public static void main(String[] args) {
+		// System.out.println("URL = " + System.getenv("DB_URL"));
 		SpringApplication.run(DemoApplication.class, args);
 	}
 
