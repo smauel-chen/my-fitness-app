@@ -5,6 +5,7 @@ import WorkoutList from "./components/WorkoutList";
 import Dashboard from "./components/Dashboard";
 import LoginForm from "./components/LoginForm";
 import WorkoutTypeManager from "./components/WorkoutTypeManager";
+import DemoDashboard from "./components/DemoDashBoard";
 
 
 import { useEffect, useState } from "react";
@@ -74,6 +75,9 @@ function App() {
             <Link to="/types" className="text-blue-600 font-semibold hover:underline">
               🧩 訓練動作管理
             </Link>
+            <Link to="/demo" className="text-blue-600 font-semibold hover:underline">
+              🎬 Demo 展示
+            </Link>
           </div>
 
           <div className="flex items-center gap-4">
@@ -125,6 +129,7 @@ function App() {
             </ProtectedRoute>
           }
         />
+        <Route path="/demo" element={<DemoDashboard />}/>
 
       </Routes>
     </div>

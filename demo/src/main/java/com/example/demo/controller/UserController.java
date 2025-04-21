@@ -21,7 +21,7 @@ import com.example.demo.exception.ApiException;
 //repository
 import com.example.demo.repository.*;
 
-import jakarta.validation.Valid;
+
 
 //security
 import org.springframework.security.core.Authentication;
@@ -40,7 +40,6 @@ import com.example.demo.dto.PopularTypesDTO;
 
 //dto
 import com.example.demo.dto.UserDTO;
-import com.example.demo.dto.UserRequestDTO;
 import com.example.demo.dto.UserUpdatedRequestDTO;
 import com.example.demo.dto.WeeklyFrequencyDTO;
 import com.example.demo.dto.WeeklySummaryDTO;
@@ -53,8 +52,14 @@ import com.example.demo.dto.WorkoutSetRequestDTO;
 import com.example.demo.dto.WorkoutTypeDTO;
 import com.example.demo.dto.WorkoutTypeRequestDTO;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+//swagger
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.Parameters;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+
 
 
 
@@ -70,7 +75,7 @@ public class UserController {
     private final WorkoutSetRepository workoutSetRepository;
     private final WorkoutTypeRepository workoutTypeRepository;
 
-    private static final Logger log = LoggerFactory.getLogger(UserController.class);
+
 
     //DataBase
     private static final Map<String, String> typeToMuscleGroup = Map.of(
@@ -112,6 +117,9 @@ public class UserController {
                    .sum();
     }
 
+    @Operation(summary = "註冊新使用者", description = "傳入使用者資料（名稱、密碼、年齡）來建立新帳號")
+    @ApiResponse(responseCode = "201", description = "註冊成功")
+    @ApiResponse(responseCode = "400", description = "資料格式錯誤")
     @PostMapping("/user")
     public ResponseEntity<ApiSuccessResponseDTO> enrollUser(@RequestBody EnrollRequestDTO enrollRequestDTO) {
         // 檢查是否已有相同名稱的使用者
@@ -131,8 +139,12 @@ public class UserController {
     
 
     //PUT update
+    @Operation(summary = "更新使用者資料", description = "更新使用者名稱與年齡")
+    @ApiResponse(responseCode = "200", description = "更新成功")
+    @ApiResponse(responseCode = "404", description = "找不到使用者")    
     @PutMapping("/user/{id}")
-    public ResponseEntity<?> updateUser(@PathVariable Long id, @RequestBody UserUpdatedRequestDTO userUpdatedRequestDTO) {
+    public ResponseEntity<?> updateUser(
+        @Parameter(description = "要更新的使用者ID", example = "1") @PathVariable Long id, @RequestBody UserUpdatedRequestDTO userUpdatedRequestDTO) {
         User user = userRepository.findById(id).orElseThrow(() ->
             new ApiException(ApiErrorCode.USER_NOT_FOUND, "使用者不存在, ＩＤ:" + id, HttpStatus.NOT_FOUND)
         );
@@ -142,7 +154,8 @@ public class UserController {
         return ResponseEntity.ok(new UserDTO(user.getId(), user.getName(), user.getAge()));
     }
 
-    
+    @Operation(summary = "取得所有使用者", description = "回傳系統中所有使用者的基本資料清單（不含密碼）")
+    @ApiResponse(responseCode = "200", description = "成功取得使用者清單")
     @GetMapping("/users")
     public ResponseEntity<List<UserDTO>> getAllUsers() {
         List<UserDTO> userDTOs = userRepository.findAll().stream()
@@ -150,9 +163,11 @@ public class UserController {
             .collect(Collectors.toList());
         return ResponseEntity.ok(userDTOs);
     }    
-
+    @Operation(summary = "刪除使用者", description = "根據 ID 刪除使用者")
+    @ApiResponse(responseCode = "200", description = "刪除成功")
+    @ApiResponse(responseCode = "404", description = "找不到使用者")
     @DeleteMapping("/user/{id}")
-    public ResponseEntity<?> deleteUser(@PathVariable Long id) {
+    public ResponseEntity<?> deleteUser(@Parameter(description = "要刪除的使用者ID", example = "1")@PathVariable Long id) {
         User user = userRepository.findById(id).orElseThrow(() ->
             new ApiException(ApiErrorCode.USER_NOT_FOUND, "使用者不存在, ＩＤ:" + id, HttpStatus.NOT_FOUND)
         );
@@ -160,8 +175,13 @@ public class UserController {
         return ResponseEntity.ok("Deleted user: " + user.getName());
     }
 
+    @Operation(summary = "取得使用者資訊", description = "根據 ID 回傳使用者名稱與年齡")
+    @ApiResponse(responseCode = "200", description = "取得成功")
+    @ApiResponse(responseCode = "404", description = "找不到使用者")    
     @GetMapping("/user/{id}")
-    public ResponseEntity<UserDTO> getUserById(@PathVariable Long id) {
+    public ResponseEntity<UserDTO> getUserById(
+        @Parameter(description = "要獲取的使用者ID", example = "1")    @PathVariable Long id
+    ) {
         User user = userRepository.findById(id).orElseThrow(() ->
             new ApiException(
                 ApiErrorCode.USER_NOT_FOUND,
@@ -173,7 +193,15 @@ public class UserController {
         return ResponseEntity.ok(dto);
     }
 
-    
+    @Operation(
+        summary = "新增訓練課表",
+        description = "為指定的使用者新增一筆訓練課表，內容包含訓練日期、備註與多筆訓練組合"
+    )
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "成功建立訓練課表"),
+        @ApiResponse(responseCode = "404", description = "找不到使用者 ID"),
+    })
+    @Parameter(name = "id", description = "使用者 ID", required = true)    
     @PostMapping("/user/{id}/session")
     public ResponseEntity<?> addWorkoutSession(
             @PathVariable Long id,
@@ -209,6 +237,18 @@ public class UserController {
         return ResponseEntity.ok("Create session for user: " + user.getName());
     }
 
+    @Operation(
+        summary = "新增訓練組合",
+        description = "為指定使用者的指定課表新增一筆訓練組，包含動作類型、重量與次數資訊"
+    )
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "成功新增訓練組合"),
+        @ApiResponse(responseCode = "404", description = "找不到使用者或課表"),
+    })
+    @Parameters({
+        @Parameter(name = "id", description = "使用者 ID", required = true),
+        @Parameter(name = "sessionID", description = "課表 ID", required = true)
+    })
     @PostMapping("/user/{id}/session/{sessionID}/set")
     public ResponseEntity<?> addWorkoutSetToSession(
             @PathVariable Long id, @PathVariable Long sessionID,
@@ -225,9 +265,12 @@ public class UserController {
         workoutSetRepository.save(set);
         return ResponseEntity.ok("Create a new set with type:" + findWorkoutTypeNameByTypeId(set.getTypeId()));
     }   
-
+    
+    @Operation(summary = "取得使用者所有訓練紀錄", description = "依照使用者 ID 回傳所有訓練課表與細節")
+    @ApiResponse(responseCode = "200", description = "取得成功")
+    @ApiResponse(responseCode = "404", description = "找不到使用者")
     @GetMapping("/user/{id}/sessions")
-    public ResponseEntity<?> getWorkoutSessions( @PathVariable Long id){
+    public ResponseEntity<?> getWorkoutSessions(@Parameter(description = "使用者ID", example = "1") @PathVariable Long id){
         User user = userRepository.findById(id).orElseThrow(() ->
             new ApiException(ApiErrorCode.USER_NOT_FOUND, "使用者不存在,ID:" + id, HttpStatus.NOT_FOUND)
         );  
@@ -252,6 +295,9 @@ public class UserController {
         return ResponseEntity.ok(sessionDTOs);
     }
 
+    @Operation(summary = "取得使用者不同日期訓練課表的資訊", description = "依照使用者 ID 回傳不同日期訓練課表的內容和總重量")
+    @ApiResponse(responseCode = "200", description = "取得成功")
+    @ApiResponse(responseCode = "404", description = "找不到使用者")
     @GetMapping("/user/{id}/sessions/summary")
     public ResponseEntity<?> getWorkoutSessionSummaryDTO(@PathVariable Long id) {
         User user = userRepository.findById(id).orElseThrow(() ->
@@ -265,6 +311,9 @@ public class UserController {
         return ResponseEntity.ok(summaryDTO);
     }
 
+    @Operation(summary = "取得使用者每週的訓練紀錄整理", description = "依照使用者 ID 回傳每週的訓練課表整理")
+    @ApiResponse(responseCode = "200", description = "取得成功")
+    @ApiResponse(responseCode = "404", description = "找不到使用者")
     @GetMapping("/user/{id}/sessions/weekly-summary")
     public ResponseEntity<?> getWeeklySummary(
         @PathVariable Long id
@@ -291,6 +340,9 @@ public class UserController {
 
     }
 
+    @Operation(summary = "刪除使用者的課表", description = "根據 課表ID 刪除課表")
+    @ApiResponse(responseCode = "200", description = "刪除成功")
+    @ApiResponse(responseCode = "404", description = "找不到使用者或是找不到課表")
     @DeleteMapping("/user/{id}/session/{sessionID}")
     public ResponseEntity<?> deleteWorkoutSession(
         @PathVariable Long id, @PathVariable Long sessionID
@@ -301,7 +353,19 @@ public class UserController {
         workoutSessionRepository.delete(session);
         return ResponseEntity.ok("removed session:" + sessionID);
     }
-
+    @Operation(
+        summary = "刪除訓練組",
+        description = "刪除指定使用者的某一課表中的某一筆訓練組"
+    )
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "成功刪除訓練組"),
+        @ApiResponse(responseCode = "404", description = "找不到對應的使用者、課表或訓練組")
+    })
+    @Parameters({
+        @Parameter(name = "userId", description = "使用者 ID", required = true),
+        @Parameter(name = "sessionId", description = "課表 ID", required = true),
+        @Parameter(name = "setId", description = "訓練組 ID", required = true)
+    })
     @DeleteMapping("/user/{userId}/session/{sessionId}/set/{setId}")
     public ResponseEntity<?> deleteWorkoutSet(
         @PathVariable Long userId,
@@ -322,7 +386,19 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Set not found in session.");
         }
     }
-    
+    @Operation(
+        summary = "更新訓練組資訊",
+        description = "根據使用者 ID、課表 ID、訓練組 ID，更新指定訓練組的重量、次數與動作類型"
+    )
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "成功更新訓練組"),
+        @ApiResponse(responseCode = "404", description = "找不到指定的使用者、課表或訓練組")
+    })
+    @Parameters({
+        @Parameter(name = "id", description = "使用者 ID", required = true),
+        @Parameter(name = "sessionId", description = "課表 ID", required = true),
+        @Parameter(name = "setId", description = "訓練組 ID", required = true)
+    })    
     @PutMapping("/user/{id}/session/{sessionId}/set/{setId}")
     public ResponseEntity<?> updateWorkoutSet(
         @PathVariable Long id,
@@ -342,7 +418,15 @@ public class UserController {
         workoutSetRepository.save(existingSet);
         return ResponseEntity.ok("Update set: " + setId);
     }
-
+    @Operation(
+        summary = "取得熱門訓練動作",
+        description = "根據使用者 ID 統計其所有訓練中最常使用的動作類型（依照出現次數排序）"
+    )
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "成功取得熱門訓練動作資料"),
+        @ApiResponse(responseCode = "404", description = "找不到該使用者")
+    })
+    @Parameter(name = "id", description = "使用者 ID", required = true)
     @GetMapping("/user/{id}/workouts/popular-types")
     public ResponseEntity<?> getPopularWorkoutTypes(@PathVariable Long id){
         User user = userRepository.findById(id).orElseThrow(() ->
@@ -381,6 +465,15 @@ public class UserController {
     // }
 
     //stream version
+    @Operation(
+    summary = "取得訓練進度紀錄",
+    description = "根據指定使用者 ID 與動作類型 ID，回傳該使用者每一次訓練該動作時的總重量，用於前端繪製訓練成效折線圖。"
+)
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "成功取得進度資料"),
+        @ApiResponse(responseCode = "404", description = "找不到指定使用者"),
+        @ApiResponse(responseCode = "500", description = "伺服器錯誤")
+    })
     @GetMapping("/user/{id}/workouts/progress")
     public ResponseEntity<?> getWorkoutProgressByType(
         @PathVariable Long id, @RequestParam Long typeId
@@ -400,6 +493,15 @@ public class UserController {
         return ResponseEntity.ok(progressDTOs);
     }
 
+    @Operation(
+    summary = "取得每週訓練頻率統計",
+    description = "根據指定使用者 ID，回傳該使用者各週訓練的天數。每週的訓練日只會計算一次，適合用於顯示訓練習慣與規律程度的圖表。"
+)
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "成功取得訓練頻率資料"),
+        @ApiResponse(responseCode = "404", description = "找不到指定使用者"),
+        @ApiResponse(responseCode = "500", description = "伺服器錯誤")
+    })
     @GetMapping("/user/{id}/sessions/weekly-frequency")
     public ResponseEntity<?> getWeeklyWorkoutDays(@PathVariable Long id){
         User user = userRepository.findById(id).orElseThrow(() ->
@@ -424,7 +526,19 @@ public class UserController {
             }).collect(Collectors.toList());
         return ResponseEntity.ok(weeklyFrequencyDTOs);
     }
-
+    
+    @Operation(
+        summary = "查詢訓練動作進度",
+        description = "根據使用者 ID 與動作類型 ID，取得該動作在各次訓練中的總重量變化情形。"
+    )
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "成功取得訓練進度"),
+        @ApiResponse(responseCode = "404", description = "找不到使用者")
+    })
+    @Parameters({
+        @Parameter(name = "id", description = "使用者 ID", required = true),
+        @Parameter(name = "typeId", description = "動作類型 ID", required = true)
+    })
     @GetMapping("/user/{id}/muscle-groups/total-weight")
     public ResponseEntity<?> getTotalWeightsByMuscleGroup(@PathVariable Long id){
         User user = userRepository.findById(id).orElseThrow(() ->
@@ -449,6 +563,14 @@ public class UserController {
     }
 
     //muscleType controll section
+    @Operation(
+    summary = "新增訓練動作類型",
+    description = "建立一個新的訓練動作類型，包含動作名稱與對應的肌群名稱。"
+    )
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "動作類型建立成功"),
+        @ApiResponse(responseCode = "400", description = "輸入資料格式錯誤")
+    })
     @PostMapping("/workout-types")
     public ResponseEntity<?> createWorkoutType(@RequestBody WorkoutTypeRequestDTO workoutTypeRequestDTO){
         WorkoutType saved =  new WorkoutType(
@@ -459,6 +581,14 @@ public class UserController {
         return ResponseEntity.ok(saved);
     }
 
+    @Operation(
+    summary = "取得所有訓練動作類型",
+    description = "回傳目前系統中所有訓練動作類型，包含動作名稱與所對應的肌群名稱。"
+)
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "成功取得動作類型清單"),
+        @ApiResponse(responseCode = "500", description = "伺服器錯誤")
+    })
     @GetMapping("/workout-types")
     public ResponseEntity<?> getWorkoutType(){
         List<WorkoutTypeDTO> workoutTypeDTOs = workoutTypeRepository.findAll().stream()
@@ -467,8 +597,12 @@ public class UserController {
         return ResponseEntity.ok(workoutTypeDTOs);  
     }
 
+    @Operation(summary = "刪除訓練動作", description = "根據 動作ID 刪除動作")
+    @ApiResponse(responseCode = "200", description = "刪除成功")
+    @ApiResponse(responseCode = "404", description = "找不到動作")
     @DeleteMapping("/workout-types/{id}")
-    public ResponseEntity<?> deleteWorkoutType(@PathVariable Long id) {
+    public ResponseEntity<?> deleteWorkoutType(@Parameter(description = "動作ID", example = "1")
+    @PathVariable Long id) {
         Optional<WorkoutType> typeOpt = workoutTypeRepository.findById(id);
         if (typeOpt.isPresent()) {
             workoutTypeRepository.deleteById(id);
@@ -479,6 +613,9 @@ public class UserController {
     }
     
     //login section
+    @Operation(summary = "使用者登入", description = "使用帳號密碼登入並回傳 JWT Token")
+    @ApiResponse(responseCode = "200", description = "登入成功，回傳 token")
+    @ApiResponse(responseCode = "401", description = "帳號或密碼錯誤")
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequestDTO credentials) {
         // 建立驗證請求（Spring Security 會透過自定義 Provider 處理）
