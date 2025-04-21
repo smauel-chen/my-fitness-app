@@ -1,14 +1,12 @@
-# 使用 Java 17 為基底（Render 支援 Java 17）
-FROM openjdk:17
-
-# 設定 app 目錄
+# 第一階段：建置 .jar
+FROM maven:3.9.4-eclipse-temurin-17 AS build
 WORKDIR /app
+COPY . .
+RUN mvn clean package -DskipTests
 
-# 複製編譯後的 jar 檔到容器
-COPY target/demo-0.0.1-SNAPSHOT.jar app.jar
-
-# 開放 port 8080
+# 第二階段：使用更小的鏡像來執行 jar
+FROM eclipse-temurin:17-jdk-alpine
+WORKDIR /app
+COPY --from=build /app/target/*.jar app.jar
 EXPOSE 8080
-
-# 啟動指令
 ENTRYPOINT ["java", "-jar", "app.jar"]
