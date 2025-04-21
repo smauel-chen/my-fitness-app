@@ -12,7 +12,7 @@
                 "mainClass": "com.example.demo.DemoApplication",
                 "projectName": "demo",
                 "args": "",
-                "envFile": "${workspaceFolder}/.env"
+                "envFile": "${workspaceFolder}/demo/.env"
                 
     
             }
