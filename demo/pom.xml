@@ -84,11 +84,11 @@
 		</dependency>
 
 		<!--部署用postgre資料庫-->
-		<!-- <dependency>
+		<dependency>
 			<groupId>org.postgresql</groupId>
 			<artifactId>postgresql</artifactId>
 			<version>42.7.3</version> 
-		</dependency> -->
+		</dependency>
 
 
 		<!-- Spring Data JPA -->
