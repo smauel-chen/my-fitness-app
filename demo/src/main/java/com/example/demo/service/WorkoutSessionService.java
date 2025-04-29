@@ -4,7 +4,7 @@ import java.util.stream.Collectors;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.WeekFields;
-import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -48,17 +48,6 @@ public class WorkoutSessionService {
         this.workoutSessionRepository = workoutSessionRepository;
         this.workoutTypeRepository = workoutTypeRepository;
     }
-
-    //DataBase
-    private static final Map<String, String> typeToMuscleGroup = Map.of(
-        "臥推","胸",
-        "肩推","肩",
-        "深蹲","腿",
-        "硬舉","腿",
-        "引體向上","背",
-        "坐姿划船","背",
-        "坐姿下拉","背"        
-    );
 
     private String findWorkoutTypeNameByTypeId(Long TypeId){
         //WorkoutType::getName ---> WorkoutType -> WorkoutType.getName()
@@ -140,8 +129,8 @@ public class WorkoutSessionService {
 
     public List<WeeklySummaryDTO> getWeeklySummary(Long id){
         userRepository.findById(id).orElseThrow(() -> new ApiException(ApiErrorCode.USER_NOT_FOUND, "找不到使用者, id:" + id, HttpStatus.NOT_FOUND));
-        List<WeeklySummaryDTO> weeklySummaryDTOs = new ArrayList<>();
         DateTimeFormatter dTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        Map<String, Integer> weekToTotalWeight = new HashMap<>();
         for(WorkoutSession workoutSession:workoutSessionRepository.findByUser_Id(id)){
             LocalDate date = LocalDate.parse(workoutSession.getDate(),dTimeFormatter);
             WeekFields weekFields = WeekFields.of(Locale.getDefault());
@@ -153,9 +142,11 @@ public class WorkoutSessionService {
             for(WorkoutSet workoutSet:workoutSession.getSets()){
                 sessionTotal += workoutSet.getReps()*workoutSet.getWeight();
             }
-            weeklySummaryDTOs.add(new WeeklySummaryDTO(weekKey, sessionTotal));
+            weekToTotalWeight.merge(weekKey, sessionTotal, Integer::sum);
         }   
-        return weeklySummaryDTOs;
+        return weekToTotalWeight.entrySet().stream()
+            .map(entry -> new WeeklySummaryDTO(entry.getKey(), entry.getValue()))
+            .collect(Collectors.toList());
     }
 
     public List<WeeklyFrequencyDTO> getWeeklyFrequency(Long id){
@@ -188,16 +179,15 @@ public class WorkoutSessionService {
         for(WorkoutSession session:user.getWorkoutSessions()){
             for(WorkoutSet set:session.getSets()){
                 Integer total = set.getReps()*set.getWeight();
-                String group = typeToMuscleGroup.get(findWorkoutTypeNameByTypeId(set.getTypeId()));
-                if(group == null){
-                    System.out.println(findWorkoutTypeNameByTypeId(set.getTypeId()) + "not been definde in current group.");
-                } else{
-                    groupTotals.put(group, groupTotals.getOrDefault(group, 0) + total);
-                }
+                WorkoutType type = workoutTypeRepository.findById(set.getTypeId()).orElseThrow(() -> 
+                    new ApiException(ApiErrorCode.TYPE_NOT_FOUND, "找不到對應動作類型", HttpStatus.NOT_FOUND)
+                );
+                groupTotals.put(type.getMuscleGroup(), groupTotals.getOrDefault(type.getMuscleGroup(), 0) + total);
             }
         }
         List<MuscleGroupTotalDTO> muscleGroupTotalDTOs = groupTotals.entrySet().stream()
             .map(entry -> new MuscleGroupTotalDTO(entry.getKey(), entry.getValue()))
+            .sorted(Comparator.comparing(MuscleGroupTotalDTO::getTotalWeight).reversed()) 
             .collect(Collectors.toList());
         return muscleGroupTotalDTOs;
     }

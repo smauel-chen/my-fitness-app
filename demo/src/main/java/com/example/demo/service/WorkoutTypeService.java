@@ -31,8 +31,8 @@ public class WorkoutTypeService {
 
     public WorkoutType createWorkoutType(WorkoutTypeRequestDTO workoutTypeRequestDTO){
         WorkoutType newType =  new WorkoutType(
-        workoutTypeRequestDTO.getMuscleGroup(),
-        workoutTypeRequestDTO.getName()
+            workoutTypeRequestDTO.getName(),
+            workoutTypeRequestDTO.getMuscleGroup()
         );
         return workoutTypeRepository.save(newType);
     }

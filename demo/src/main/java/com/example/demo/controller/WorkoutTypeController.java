@@ -46,10 +46,12 @@ public class WorkoutTypeController {
         return ResponseEntity.ok(newType);
     }
 
+
+
     @Operation(
-    summary = "取得所有訓練動作類型",
-    description = "回傳目前系統中所有訓練動作類型，包含動作名稱與所對應的肌群名稱。"
-)
+        summary = "取得所有訓練動作類型",
+        description = "回傳目前系統中所有訓練動作類型，包含動作名稱與所對應的肌群名稱。"
+    )   
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "成功取得動作類型清單"),
         @ApiResponse(responseCode = "500", description = "伺服器錯誤")
@@ -59,6 +61,8 @@ public class WorkoutTypeController {
         List<WorkoutTypeDTO> workoutTypeDTOs = workoutTypeService.getAllTypes();
         return ResponseEntity.ok(workoutTypeDTOs);  
     }
+
+
 
     @Operation(summary = "刪除訓練動作", description = "根據 動作ID 刪除動作")
     @ApiResponse(responseCode = "200", description = "刪除成功")

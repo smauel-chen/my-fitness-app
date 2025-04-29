@@ -13,6 +13,7 @@ import java.io.IOException;
 
 public class JwtFilter extends OncePerRequestFilter {
 
+    @SuppressWarnings("null")
     @Override
     protected void doFilterInternal(
         @Nonnull HttpServletRequest request, @Nonnull HttpServletResponse response, @Nonnull  FilterChain filterChain)

@@ -50,6 +50,7 @@ public class WorkoutSetController {
         return ResponseEntity.ok("Create a new set successed");
     }   
 
+    
     @Operation(
         summary = "刪除訓練組",
         description = "刪除指定使用者的某一課表中的某一筆訓練組"
@@ -73,6 +74,7 @@ public class WorkoutSetController {
         return ResponseEntity.ok("Delete successed");
     }
     
+
     @Operation(
         summary = "更新訓練組資訊",
         description = "根據使用者 ID、課表 ID、訓練組 ID，更新指定訓練組的重量、次數與動作類型"
@@ -95,7 +97,5 @@ public class WorkoutSetController {
     ){
         workoutSetService.updateSet(id, sessionId, setId, newSetDTO);
         return ResponseEntity.ok("Update set successed");
-    }
-
-    
+    }   
 }

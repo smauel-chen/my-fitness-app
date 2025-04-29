@@ -62,6 +62,7 @@ public class WorkoutSessionController {
         return ResponseEntity.ok(workoutSessionService.getAllSession(id));
     }
 
+
     @Operation(summary = "刪除使用者的課表", description = "根據 課表ID 刪除課表")
     @ApiResponse(responseCode = "200", description = "刪除成功")
     @ApiResponse(responseCode = "404", description = "找不到使用者或是找不到課表")
@@ -72,6 +73,7 @@ public class WorkoutSessionController {
         workoutSessionService.deleteSession(id, sessionId);
         return ResponseEntity.ok("removed session:" + sessionId);
     }
+
     
     @Operation(summary = "取得使用者不同日期訓練課表的資訊", description = "依照使用者 ID 回傳不同日期訓練課表的內容和總重量")
     @ApiResponse(responseCode = "200", description = "取得成功")
@@ -81,6 +83,7 @@ public class WorkoutSessionController {
         List<WorkoutSessionSummaryDTO> summaryDTOs = workoutSessionService.getWorkoutSessionSummary(id);
         return ResponseEntity.ok(summaryDTOs);
     }
+    
 
     @Operation(summary = "取得使用者每週的訓練紀錄整理", description = "依照使用者 ID 回傳每週的訓練課表整理")
     @ApiResponse(responseCode = "200", description = "取得成功")
@@ -136,8 +139,8 @@ public class WorkoutSessionController {
         @ApiResponse(responseCode = "404", description = "找不到該使用者")
     })
     @Parameter(name = "id", description = "使用者 ID", required = true)
-    @GetMapping("/workouts/popular-types")
-    public ResponseEntity<?> getPopularWorkoutTypes(@PathVariable Long id){
+    @GetMapping("/workouts/popular-type")
+    public ResponseEntity<?> getPopularWorkoutType(@PathVariable Long id){
         List<PopularTypesDTO> popularTypesDTOs = workoutSessionService.getPopularWorkoutType(id);
         return ResponseEntity.ok(popularTypesDTOs);
     }

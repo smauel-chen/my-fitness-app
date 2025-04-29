@@ -58,6 +58,7 @@ public class UserController {
         return ResponseEntity.ok(userDTO);
     }
 
+
     @Operation(summary = "取得所有使用者", description = "回傳系統中所有使用者的基本資料清單（不含密碼）")
     @ApiResponse(responseCode = "200", description = "成功取得使用者清單")
     @GetMapping("/users")
@@ -65,6 +66,7 @@ public class UserController {
         List<UserDTO> userDTOs = userService.getAllUsers();
         return ResponseEntity.ok(userDTOs);
     }    
+
     
     @Operation(summary = "刪除使用者", description = "根據 ID 刪除使用者")
     @ApiResponse(responseCode = "200", description = "刪除成功")
@@ -74,6 +76,7 @@ public class UserController {
         userService.deleteUser(id);
         return ResponseEntity.ok("Deleted user: " + id);
     }
+
 
     @Operation(summary = "取得使用者資訊", description = "根據 ID 回傳使用者名稱與年齡")
     @ApiResponse(responseCode = "200", description = "取得成功")
@@ -85,14 +88,15 @@ public class UserController {
         UserDTO dto = userService.getUserById(id);
         return ResponseEntity.ok(dto);
     }
+
     
     //login section
     @Operation(summary = "使用者登入", description = "使用帳號密碼登入並回傳 JWT Token")
     @ApiResponse(responseCode = "200", description = "登入成功，回傳 token")
     @ApiResponse(responseCode = "401", description = "帳號或密碼錯誤")
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody LoginRequestDTO credentials) {
-        LoginResponseDTO response = userService.login(credentials);
+    public ResponseEntity<?> login(@RequestBody LoginRequestDTO credential) {
+        LoginResponseDTO response = userService.login(credential);
         return ResponseEntity.ok(response);
     }
 

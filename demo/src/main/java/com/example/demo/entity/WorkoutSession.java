@@ -22,7 +22,7 @@ public class WorkoutSession {
     @ManyToOne
     @JoinColumn(name = "user_id")  // 對應到 user 的主鍵
     @JsonBackReference
-    private User user;
+    private User user; 
 
     @OneToMany(mappedBy = "session", cascade = CascadeType.ALL)
     @JsonManagedReference
