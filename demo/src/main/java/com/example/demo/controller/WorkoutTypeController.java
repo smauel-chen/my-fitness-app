@@ -15,6 +15,7 @@ import com.example.demo.dto.WorkoutTypeDTO;
 import com.example.demo.dto.WorkoutTypeRequestDTO;
 import com.example.demo.entity.WorkoutType;
 import com.example.demo.service.WorkoutTypeService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -42,6 +43,14 @@ public class WorkoutTypeController {
     })
     @PostMapping("")
     public ResponseEntity<?> createWorkoutType(@RequestBody WorkoutTypeRequestDTO workoutTypeRequestDTO){
+        ObjectMapper mapper = new ObjectMapper();
+        try{
+            String backToJson = mapper.writeValueAsString(workoutTypeRequestDTO);
+            System.out.println(backToJson);
+        } catch (Exception e){
+            System.out.println("DTO 轉換失敗：" + e.getMessage());
+            e.printStackTrace();
+        }
         WorkoutType newType = workoutTypeService.createWorkoutType(workoutTypeRequestDTO);
         return ResponseEntity.ok(newType);
     }

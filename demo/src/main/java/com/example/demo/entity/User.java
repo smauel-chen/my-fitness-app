@@ -21,6 +21,8 @@ public class User {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
     private List<WorkoutSession> workoutSessions = new ArrayList<>();
+
+    public User(){}
     
     public User(String name, Integer age, String password){
         this.name = name;

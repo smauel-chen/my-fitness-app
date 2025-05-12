@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 
 import com.example.demo.dto.MuscleGroupTotalDTO;
 import com.example.demo.dto.PopularTypesDTO;
+import com.example.demo.dto.TestDTO;
 import com.example.demo.dto.WeeklyFrequencyDTO;
 import com.example.demo.dto.WeeklySummaryDTO;
 import com.example.demo.dto.WorkoutProgressDTO;
@@ -64,7 +65,36 @@ public class WorkoutSessionService {
                    .sum();
     }
 
+    public void addSessionTest(Long id, TestDTO testDTO){
+        
+        System.out.println("傳入的session" + testDTO.getDate());
+        System.out.println("傳入的session" + testDTO.getNote());
+        User user = userRepository.findById(id).orElseThrow(() -> new ApiException(ApiErrorCode.USER_NOT_FOUND, "找不到使用者, Id:"+ id, HttpStatus.NOT_FOUND));
+        WorkoutSession session = new WorkoutSession();
+        session.setDate(testDTO.getDate());
+        session.setNote(testDTO.getNote());
+        session.setUser(user);
+        if (testDTO.getSets() == null) {
+            throw new ApiException(ApiErrorCode.BAD_REQUEST, "缺少訓練組內容", HttpStatus.BAD_REQUEST);
+        }
+        System.out.println("綁定set之前" + session.getNote());
+        System.out.println("綁定set之前" + session.getDate());
+        
+        List<WorkoutSet> sets = testDTO.getSets().stream()
+            .map(dto -> {
+                WorkoutSet set = new WorkoutSet();
+                set.setTypeId(dto.getTypeId());
+                set.setReps(dto.getReps());
+                set.setWeight(dto.getWeight());
+                set.setSession(session); // 設定關聯
+                return set;
+            })
+            .collect(Collectors.toList());
+        session.setSets(sets); 
+    }
+
     public void addSession(Long id, WorkoutSessionRequestDTO workoutSessionRequestDTO){
+        
         User user = userRepository.findById(id).orElseThrow(() -> new ApiException(ApiErrorCode.USER_NOT_FOUND, "找不到使用者, Id:"+ id, HttpStatus.NOT_FOUND));
         // 1. 建立 WorkoutSession 物件，並設定基本欄位與 user
         WorkoutSession session = new WorkoutSession();
@@ -72,12 +102,16 @@ public class WorkoutSessionService {
         session.setNote(workoutSessionRequestDTO.getNote());
         session.setUser(user);
         // 2. 建立每一組 set 的實體物件並與 session 關聯
+
         List<WorkoutSet> sets = workoutSessionRequestDTO.getSets().stream()
             .map(dto -> {
+                if(dto.getTypeId() == null || dto.getReps() == null || dto.getWeight() == null){
+                    throw new ApiException(ApiErrorCode.BAD_REQUEST, "缺少訓練組內容",  HttpStatus.BAD_REQUEST);
+                }
                 WorkoutSet set = new WorkoutSet();
                 set.setTypeId(dto.getTypeId());
-                set.setWeight(dto.getWeight());
                 set.setReps(dto.getReps());
+                set.setWeight(dto.getWeight());
                 set.setSession(session); // 設定關聯
                 return set;
             })
@@ -86,6 +120,17 @@ public class WorkoutSessionService {
         // 3. 存入資料庫（因為 cascade 設定所以 sets 也會一併儲存）
         workoutSessionRepository.save(session);
     }
+
+    public List<Long> getAllSessionIds(Long userId){
+        userRepository.findById(userId).orElseThrow(() -> new ApiException(ApiErrorCode.USER_NOT_FOUND, "找不到使用者", HttpStatus.NOT_FOUND));
+    
+        List<Long> sessionIds = workoutSessionRepository.findByUser_Id(userId)
+            .stream()
+            .map(WorkoutSession::getId)
+            .collect(Collectors.toList());
+        return sessionIds;
+    }
+
 
     public List<WorkoutSessionDTO> getAllSession(Long id){
         userRepository.findById(id).orElseThrow(() -> new ApiException(ApiErrorCode.USER_NOT_FOUND, "找不到使用者, Id:"+ id, HttpStatus.NOT_FOUND));
@@ -171,7 +216,7 @@ public class WorkoutSessionService {
         return weeklyFrequencyDTOs;
     }
 
-    public List<MuscleGroupTotalDTO> getTotalWeightsByMuscleGroup(Long id){
+    public List<MuscleGroupTotalDTO> getTotalWeightsByMuscleGroup(Long id){//
         User user = userRepository.findById(id).orElseThrow(() ->
             new ApiException(ApiErrorCode.USER_NOT_FOUND, "使用者不存在,ID:" + id, HttpStatus.NOT_FOUND)
         );  

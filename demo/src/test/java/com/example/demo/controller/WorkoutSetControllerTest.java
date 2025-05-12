@@ -16,6 +16,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
+import com.example.demo.dto.WorkoutSetEditDTO;
 import com.example.demo.dto.WorkoutSetRequestDTO;
 import com.example.demo.service.WorkoutSetService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -81,7 +82,7 @@ public class WorkoutSetControllerTest {
         Long sessionId = 1L;
         Long setId = 1L;
 
-        doNothing().when(workoutSetService).updateSet(eq(userId), eq(sessionId), eq(setId), any(WorkoutSetRequestDTO.class));
+        doNothing().when(workoutSetService).updateSet(eq(userId), eq(sessionId), eq(setId), any(WorkoutSetEditDTO.class));
         //act & assert
         mockMvc.perform(put("/user/{id}/session/{sessionId}/set/{setId}", userId, sessionId, setId)
                         .contentType(MediaType.APPLICATION_JSON)

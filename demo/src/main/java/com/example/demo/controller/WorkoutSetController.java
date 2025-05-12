@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.demo.dto.WorkoutSetEditDTO;
 import com.example.demo.dto.WorkoutSetRequestDTO;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -19,8 +20,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 
 import com.example.demo.service.WorkoutSetService;
 
-@RestController
 @RequestMapping("/user/{id}/session/{sessionId}/set")
+@RestController
 public class WorkoutSetController {
     
     private final WorkoutSetService workoutSetService;
@@ -49,8 +50,6 @@ public class WorkoutSetController {
         workoutSetService.addSet(id, sessionId, workoutSetRequestDTO);
         return ResponseEntity.ok("Create a new set successed");
     }   
-
-    
     @Operation(
         summary = "刪除訓練組",
         description = "刪除指定使用者的某一課表中的某一筆訓練組"
@@ -77,7 +76,7 @@ public class WorkoutSetController {
 
     @Operation(
         summary = "更新訓練組資訊",
-        description = "根據使用者 ID、課表 ID、訓練組 ID，更新指定訓練組的重量、次數與動作類型"
+        description = "根據使用者 ID、課表 ID，更新指定訓練組的重量、次數"
     )
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "成功更新訓練組"),
@@ -93,7 +92,7 @@ public class WorkoutSetController {
         @PathVariable Long id,
         @PathVariable Long sessionId, 
         @PathVariable Long setId,
-        @RequestBody WorkoutSetRequestDTO newSetDTO
+        @RequestBody WorkoutSetEditDTO newSetDTO
     ){
         workoutSetService.updateSet(id, sessionId, setId, newSetDTO);
         return ResponseEntity.ok("Update set successed");

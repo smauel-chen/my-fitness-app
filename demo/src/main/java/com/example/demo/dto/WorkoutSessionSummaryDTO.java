@@ -6,6 +6,8 @@ public class WorkoutSessionSummaryDTO {
     private String note;
     private Integer totalWeight;
 
+    public WorkoutSessionSummaryDTO(){}
+
     public WorkoutSessionSummaryDTO(Long sessionId, String date, String note, Integer totalWeight) {
         this.sessionId = sessionId;
         this.date = date;
@@ -28,4 +30,8 @@ public class WorkoutSessionSummaryDTO {
     public Integer getTotalWeight() {
         return totalWeight;
     }
+    public void setSessionId(Long sessionId){this.sessionId = sessionId; }
+    public void setDate(String date){this.date = date; }
+    public void setNote(String note){this.note = note; }
+    public void setTotalWeight(Integer totalWeight){this.totalWeight = totalWeight; }
 } 

@@ -16,6 +16,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 
+import com.example.demo.dto.WorkoutSetEditDTO;
 import com.example.demo.dto.WorkoutSetRequestDTO;
 import com.example.demo.entity.User;
 import com.example.demo.entity.WorkoutSession;
@@ -82,13 +83,13 @@ public class WorkoutSetServiceTest {
         
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
         when(workoutSessionRepository.findByIdAndUser_Id(sessionId, userId)).thenReturn(Optional.of(session));
-        when(workoutSetRepository.findBySessionIdAndSetId(sessionId, setId)).thenReturn(Optional.of(set));
+        when(workoutSetRepository.findBySessionIdAndId(sessionId, setId)).thenReturn(Optional.of(set));
 
         workoutSetService.deleteSet(userId, sessionId, setId);
 
         verify(userRepository, times(1)).findById(userId);
         verify(workoutSessionRepository, times(1)).findByIdAndUser_Id(sessionId, userId);
-        verify(workoutSetRepository,times(1)).findBySessionIdAndSetId(sessionId, setId);
+        verify(workoutSetRepository,times(1)).findBySessionIdAndId(sessionId, setId);
         verify(workoutSetRepository,times(1)).delete(set);
     }
 
@@ -108,8 +109,7 @@ public class WorkoutSetServiceTest {
         set.setId(setId);
         set.setSession(session);
 
-        WorkoutSetRequestDTO newSet = new WorkoutSetRequestDTO(1L, 8, 80);
-
+        WorkoutSetEditDTO newSet = new WorkoutSetEditDTO(8, 80);
         
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
         when(workoutSessionRepository.findByIdAndUser_Id(sessionId, userId)).thenReturn(Optional.of(session));
@@ -118,12 +118,10 @@ public class WorkoutSetServiceTest {
         workoutSetService.updateSet(userId, sessionId, setId, newSet);
 
         assertEquals(set.getReps(), newSet.getReps());
-        assertEquals(set.getTypeId(), newSet.getTypeId());
         assertEquals(set.getWeight(), newSet.getWeight());
 
         verify(userRepository, times(1)).findById(userId);
         verify(workoutSessionRepository, times(1)).findByIdAndUser_Id(sessionId, userId);
-        verify(workoutSetRepository,times(1)).findById(setId);
         verify(workoutSetRepository,times(1)).save(set);
     }
 

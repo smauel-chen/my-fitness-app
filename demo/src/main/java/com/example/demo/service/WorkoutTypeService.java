@@ -17,7 +17,7 @@ import com.example.demo.repository.WorkoutTypeRepository;
 public class WorkoutTypeService {
     private final WorkoutTypeRepository workoutTypeRepository;
 
-    WorkoutTypeService( WorkoutTypeRepository workoutTypeRepository){
+    public WorkoutTypeService( WorkoutTypeRepository workoutTypeRepository){
         this.workoutTypeRepository = workoutTypeRepository;
     }
 

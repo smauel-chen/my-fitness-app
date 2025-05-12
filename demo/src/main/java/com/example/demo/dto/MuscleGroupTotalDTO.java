@@ -1,8 +1,10 @@
 package com.example.demo.dto;
-
+//
 public class MuscleGroupTotalDTO {
     private String muscleGroup;
     private Integer totalWeight;
+
+    public MuscleGroupTotalDTO(){}
 
     public MuscleGroupTotalDTO(String muscleGroup, Integer totalWeight) {
         this.muscleGroup = muscleGroup;
@@ -16,4 +18,7 @@ public class MuscleGroupTotalDTO {
     public Integer getTotalWeight() {
         return totalWeight;
     }
+
+    public void setMuscleGroup(String muscleGroup){this.muscleGroup = muscleGroup;}
+    public void setTotalWeight(Integer totalWeight){this.totalWeight = totalWeight;}
 }

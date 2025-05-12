@@ -6,6 +6,8 @@ public class EnrollRequestDTO {
     private String password;
     private Integer age;
 
+    public EnrollRequestDTO(){}
+
     public EnrollRequestDTO(String name, String password, Integer age) {
         this.name = name;
         this.password = password;
@@ -23,4 +25,8 @@ public class EnrollRequestDTO {
     public Integer getAge() {
         return age;
     }
+    public void setName(String name){this.name = name;}
+    public void setPassword(String password){this.password = password;}
+    public void setAge(Integer age){this.age = age;}
+
 }

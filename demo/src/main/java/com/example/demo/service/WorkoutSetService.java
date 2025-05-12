@@ -3,6 +3,7 @@ package com.example.demo.service;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import com.example.demo.dto.WorkoutSetEditDTO;
 import com.example.demo.dto.WorkoutSetRequestDTO;
 import com.example.demo.entity.WorkoutSession;
 import com.example.demo.entity.WorkoutSet;
@@ -19,7 +20,7 @@ public class WorkoutSetService {
     private final WorkoutSetRepository workoutSetRepository;
     private final WorkoutSessionRepository workoutSessionRepository;
 
-    WorkoutSetService(  
+    public WorkoutSetService(  
                         WorkoutSetRepository workoutSetRepository,
                         WorkoutSessionRepository workoutSessionRepository,
                         UserRepository userRepository){
@@ -41,18 +42,20 @@ public class WorkoutSetService {
 
     public void deleteSet(Long id, Long sessionId, Long setId){
         userRepository.findById(id).orElseThrow(() -> new ApiException(ApiErrorCode.USER_NOT_FOUND, "使用者不存在, ID:" + id, HttpStatus.NOT_FOUND));
-        workoutSessionRepository.findByIdAndUser_Id(sessionId, id).orElseThrow(() -> new ApiException(ApiErrorCode.SESSION_NOT_FOUND, "課表不存在, SessionId:" + sessionId, HttpStatus.NOT_FOUND));
-        WorkoutSet set = workoutSetRepository.findBySessionIdAndSetId(sessionId, setId).orElseThrow(() -> new ApiException(ApiErrorCode.SET_NOT_FOUND, "找不到訓練組", HttpStatus.NOT_FOUND));
+        WorkoutSession session = workoutSessionRepository.findByIdAndUser_Id(sessionId, id).orElseThrow(() -> new ApiException(ApiErrorCode.SESSION_NOT_FOUND, "課表不存在, SessionId:" + sessionId, HttpStatus.NOT_FOUND));
+        WorkoutSet set = workoutSetRepository.findBySessionIdAndId(sessionId, setId).orElseThrow(() -> new ApiException(ApiErrorCode.SET_NOT_FOUND, "找不到訓練組", HttpStatus.NOT_FOUND));
         workoutSetRepository.delete(set);
+        if(session.getSets().size() == 0){
+            workoutSessionRepository.delete(session);
+        }
     }
 
-    public void updateSet(Long id, Long sessionId, Long setId, WorkoutSetRequestDTO newSetDTO){
+    public void updateSet(Long id, Long sessionId, Long setId, WorkoutSetEditDTO newSetDTO){
         userRepository.findById(id).orElseThrow(() -> new ApiException(ApiErrorCode.USER_NOT_FOUND, "使用者不存在, ID:" + id, HttpStatus.NOT_FOUND));
         workoutSessionRepository.findByIdAndUser_Id(sessionId, id).orElseThrow(() -> new ApiException(ApiErrorCode.SESSION_NOT_FOUND, "課表不存在, SessionId:" + sessionId, HttpStatus.NOT_FOUND));
         WorkoutSet existingSet = workoutSetRepository.findById(setId).orElseThrow(() ->
             new ApiException(ApiErrorCode.SET_NOT_FOUND, "動作組數不存在 ID:" + setId, HttpStatus.NOT_FOUND)
         );
-        existingSet.setTypeId(newSetDTO.getTypeId());
         existingSet.setReps(newSetDTO.getReps());
         existingSet.setWeight(newSetDTO.getWeight());
         workoutSetRepository.save(existingSet);

@@ -1,6 +1,5 @@
 package com.example.demo.controller;
 
-import com.example.demo.dto.ApiSuccessResponseDTO;
 import com.example.demo.dto.EnrollRequestDTO;
 import com.example.demo.dto.LoginRequestDTO;
 import com.example.demo.dto.LoginResponseDTO;
@@ -9,7 +8,6 @@ import com.example.demo.dto.UserUpdatedRequestDTO;
 import com.example.demo.service.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import org.checkerframework.checker.units.qual.g;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;

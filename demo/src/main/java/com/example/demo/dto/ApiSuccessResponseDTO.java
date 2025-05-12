@@ -5,6 +5,8 @@ public class ApiSuccessResponseDTO {
     private int status;
     private String message;
 
+    public ApiSuccessResponseDTO(){}
+
     public ApiSuccessResponseDTO(int status, String message) {
         this.status = status;
         this.message = message;
@@ -17,4 +19,7 @@ public class ApiSuccessResponseDTO {
     public String getMessage() {
         return message;
     }
+
+    public void setStatus(int status){this.status = status;}
+    public void setMessage(String message){this.message = message;}
 }

@@ -7,6 +7,8 @@ public class ApiErrorResponseDTO {
     private String path;
     private String name;
 
+    public ApiErrorResponseDTO(){}
+
     public ApiErrorResponseDTO(int status, String message, String path, String name) {
         this.status = status;
         this.message = message;
@@ -18,4 +20,10 @@ public class ApiErrorResponseDTO {
     public String getMessage() { return message; }
     public String getPath() { return path; }
     public String getName() { return name; }
+
+
+    public void setStatus(int status){this.status = status;}
+    public void setMessage(String message){this.message = message;}
+    public void setPath(String path){this.path = path;}
+    public void setName(String name){this.name = name;}
 }
