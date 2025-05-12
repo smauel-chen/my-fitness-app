@@ -1,34 +1,24 @@
-// src/components/AddWorkoutForm.jsx
 import React, { useState, useEffect } from "react";
-import axiosInstance from "../api/axiosInstance.js"
-
+import axiosInstance from "../api/axiosInstance.js";
 
 function AddWorkoutForm({ onAddSuccess }) {
   const [date, setDate] = useState("");
   const [note, setNote] = useState("");
-  const [typeId, setTypeId] = useState("");
   const [message, setMessage] = useState("");
   const [workoutTypes, setWorkoutTypes] = useState([]);
-  const [sets, setSets] = useState([{ typeId: "", weight: "", reps: "" }]);
-  const [selectedGroup, setSelectedGroup] = useState("");
+  const [sets, setSets] = useState([
+    { muscleGroup: "", typeId: "", weight: "", reps: "" },
+  ]);
   const userId = localStorage.getItem("userId");
-
-    // 計算當前可選動作（依據肌群）
-  const filteredWorkoutTypes = workoutTypes.filter(
-    (type) => type.muscleGroup === selectedGroup
-  );
 
   useEffect(() => {
     axiosInstance
       .get("/workout-types")
-      .then((res) => {
-        console.log("Get wokoutTypes: ", res.data);
-        setWorkoutTypes(res.data);
-      })
+      .then((res) => setWorkoutTypes(res.data))
       .catch((err) => console.error("無法取得動作類型", err));
   }, []);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = () => {
 
     const payload = {
       date,
@@ -46,20 +36,16 @@ function AddWorkoutForm({ onAddSuccess }) {
         setMessage("新增成功！");
         setDate("");
         setNote("");
-        setSets([{ typeId: "", weight: "", reps: "" }]);
-        
-        if(onAddSuccess) onAddSuccess();
+        setSets([{ muscleGroup: "", typeId: "", weight: "", reps: "" }]);
+        if (onAddSuccess) onAddSuccess();
       })
       .catch((err) => {
         setMessage("新增失敗：" + err.message);
       });
-
-      console.log(payload);
-
   };
 
   const addSet = () => {
-    setSets([...sets, { typeId: "", weight: "", reps: "" }]);
+    setSets([...sets, { muscleGroup: "", typeId: "", weight: "", reps: "" }]);
   };
 
   const removeSet = (index) => {
@@ -96,83 +82,96 @@ function AddWorkoutForm({ onAddSuccess }) {
       </div>
 
       <div className="space-y-4">
-        {sets.map((set, index) => (
-          <div
-            key={index}
-            className="grid grid-cols-4 gap-4 items-end"
-          >
-            <div className="flex flex-col">
-              <label className="block text-sm font-medium">選擇部位</label>
+        {sets.map((set, index) => {
+          const filteredWorkoutTypes = workoutTypes.filter(
+            (type) => type.muscleGroup === set.muscleGroup
+          );
+
+          return (
+            <div key={index} className="grid grid-cols-4 gap-4 items-end">
+              <div className="flex flex-col col-span-2">
+                <label className="block text-sm font-medium">選擇部位</label>
                 <select
-                  value={selectedGroup}
-                  onChange={(e) => setSelectedGroup(e.target.value)}
+                  value={set.muscleGroup}
+                  onChange={(e) => {
+                    const updated = [...sets];
+                    updated[index].muscleGroup = e.target.value;
+                    updated[index].typeId = ""; // 切換部位時，重置動作
+                    setSets(updated);
+                  }}
                   className="border p-1 rounded w-full mb-2"
+                  required
                 >
                   <option value="">請選擇部位</option>
-                  {[...new Set(workoutTypes.map((type) => type.muscleGroup))].map((group) => (
-                    <option key={group} value={group}>
-                      {group}
-                    </option>
-                  ))}
+                  {[...new Set(workoutTypes.map((type) => type.muscleGroup))].map(
+                    (group) => (
+                      <option key={group} value={group}>
+                        {group}
+                      </option>
+                    )
+                  )}
                 </select>
 
                 <label className="block text-sm font-medium">訓練動作</label>
-                  <select
-                    value={set.typeId}
-                    onChange={(e) => {
-                      const updated = [...sets];
-                      updated[index].typeId = e.target.value;
-                      setSets(updated); 
-                    }}
-                    className="border p-1 rounded w-full"
-                  >
-                    <option value="">請選擇動作</option>
-                    {filteredWorkoutTypes.map((type) => (
-                      <option key={type.id} value={type.id}>
-                        {type.name}
-                      </option>
-                    ))}
-                  </select>
-            </div>
-            <div className="flex flex-col">
-              <label className="text-sm font-medium">重量</label>
-              <input
-                type="number"
-                className="p-2 border rounded"
-                value={set.weight || ""}
-                onChange={(e) => {
-                  const updated = [...sets];
-                  updated[index].weight = e.target.value;
-                  setSets(updated);
-                }}
-                required
-              />
-            </div>
+                <select
+                  value={set.typeId}
+                  onChange={(e) => {
+                    const updated = [...sets];
+                    updated[index].typeId = e.target.value;
+                    setSets(updated);
+                  }}
+                  className="border p-1 rounded w-full"
+                  required
+                >
+                  <option value="">請選擇動作</option>
+                  {filteredWorkoutTypes.map((type) => (
+                    <option key={type.id} value={type.id}>
+                      {type.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
 
-            <div className="flex flex-col">
-              <label className="text-sm font-medium">次數</label>
-              <input
-                type="number"
-                className="p-2 border rounded"
-                value={set.reps || ""}
-                onChange={(e) => {
-                  const updated = [...sets];
-                  updated[index].reps = e.target.value;
-                  setSets(updated);
-                }}
-                required
-              />
-            </div>
+              <div className="flex flex-col">
+                <label className="text-sm font-medium">重量</label>
+                <input
+                  type="number"
+                  className="p-2 border rounded"
+                  value={set.weight || ""}
+                  onChange={(e) => {
+                    const updated = [...sets];
+                    updated[index].weight = e.target.value;
+                    setSets(updated);
+                  }}
+                  required
+                />
+              </div>
 
-            <button
-              type="button"
-              onClick={() => removeSet(index)}
-              className="text-red-500 font-bold"
-            >
-              🗑️
-            </button>
-          </div>
-        ))}
+              <div className="flex flex-col">
+                <label className="text-sm font-medium">次數</label>
+                <input
+                  type="number"
+                  className="p-2 border rounded"
+                  value={set.reps || ""}
+                  onChange={(e) => {
+                    const updated = [...sets];
+                    updated[index].reps = e.target.value;
+                    setSets(updated);
+                  }}
+                  required
+                />
+              </div>
+
+              <button
+                type="button"
+                onClick={() => removeSet(index)}
+                className="text-red-500 font-bold"
+              >
+                🗑️
+              </button>
+            </div>
+          );
+        })}
       </div>
 
       <button

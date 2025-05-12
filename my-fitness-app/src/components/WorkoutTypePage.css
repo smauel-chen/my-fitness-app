@@ -1,0 +1,98 @@
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: #f5f5f5;
+}
+
+.sidebar-item {
+    transition: all 0.3s ease;
+}
+
+.sidebar-item:hover {
+    background-color: #2a2a2a;
+}
+
+.sidebar-item.active {
+    background-color: #2a2a2a;
+    border-left: 3px solid #ffffff;
+}
+
+.workout-item {
+    transition: all 0.2s ease;
+}
+
+.workout-item:hover {
+    background-color: #f9fafb;
+}
+
+.tag {
+    transition: all 0.2s ease;
+}
+
+.tag:hover {
+    background-color: #2a2a2a;
+    color: white;
+}
+
+.tag.active {
+    background-color: #2a2a2a;
+    color: white;
+}
+
+.view-toggle-btn {
+    transition: all 0.2s ease;
+}
+
+.view-toggle-btn.active {
+    background-color: #2a2a2a;
+    color: white;
+}
+
+.search-input:focus {
+    box-shadow: 0 0 0 3px rgba(156, 163, 175, 0.5);
+}
+
+/* Animation for the list items */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(5px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in {
+    animation: fadeIn 0.3s ease-out forwards;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+    width: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+
+/* Category icon backgrounds */
+.icon-bg-strength {
+    background: linear-gradient(135deg, #6366F1 0%, #4F46E5 100%);
+}
+
+.icon-bg-cardio {
+    background: linear-gradient(135deg, #F87171 0%, #EF4444 100%);
+}
+
+.icon-bg-flexibility {
+    background: linear-gradient(135deg, #34D399 0%, #10B981 100%);
+}
+
+.icon-bg-balance {
+    background: linear-gradient(135deg, #FBBF24 0%, #F59E0B 100%);
+}

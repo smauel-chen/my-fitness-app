@@ -4,16 +4,20 @@ import {
   BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid, ResponsiveContainer
 } from "recharts";
 
-function WeeklySummaryChart() {
+function WeeklySummaryChart({userId}) {
   const [data, setData] = useState([]);
+  if(!userId){
+    console.log("沒有使用者id");
+    return;
+  }
 
   useEffect(() => {
     axiosInstance
-      .get("/user/1/sessions/weekly-summary")
+      .get(`/user/${userId}/sessions/weekly-summary`)
       .then((res) => {
-        const chartData = Object.entries(res.data).map(([week, total]) => ({
-          week,
-          totalWeight: total
+        const chartData = res.data.map((item) => ({
+          week: item.week,
+          totalWeight: item.totalWeight
         }));
         setData(chartData);
       })

@@ -5,16 +5,20 @@ import {
   BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid, ResponsiveContainer
 } from "recharts";
 
-function WeeklyFrequencyChart() {
+function WeeklyFrequencyChart({userId}) {
   const [data, setData] = useState([]);
+  if(!userId){
+    console.log("沒有使用者id");
+    return;
+  }
 
   useEffect(() => {
     axiosInstance
-      .get("/user/1/sessions/weekly-frequency")
+      .get(`/user/${userId}/sessions/weekly-frequency`)
       .then((res) => {
-        const chartData = Object.entries(res.data).map(([week, count]) => ({
-          week,
-          days: count
+        const chartData = res.data.map((item) => ({
+          week: item.weekKey,
+          days: item.frequency
         }));
         setData(chartData);
       })

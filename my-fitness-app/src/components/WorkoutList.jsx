@@ -2,12 +2,14 @@
 
 import { useState, useEffect } from "react";
 import axiosInstance from "../api/axiosInstance.js"
-import EditSetModal from "./EditSetModal";
+import ListEditSet from "./ListEditSet.jsx";
+import ListAddSet from "./ListAddSet.jsx";
 
 function WorkoutList() {
     const [selectedSet, setSelectedSet] = useState(null);
     const [selectedSessionId, setSelectedSessionId] = useState(null);
-    const [showModal, setShowModal] = useState(false);
+    const [showEditModal, setShowEditModal] = useState(false);
+    const [showAddModal, setShowAddModal] = useState(false);
     const [currentSessions, setCurrentSessions] = useState([]);
     const userId = localStorage.getItem("userId");
 
@@ -24,28 +26,32 @@ function WorkoutList() {
     useEffect(() => {
         fetchSessions();
     }, []);
-
+    
     const handleDeleteSet = (sessionId, setId) => {
       axiosInstance
         .delete(`/user/${userId}/session/${sessionId}/set/${setId}`)
         .then(() => {
-          alert("刪除成功！");
           fetchSessions();
         })
         .catch((err) => {
           console.error("刪除失敗", err);
-          alert("刪除失敗！");
         });
     };
+
+    const openAddModel = (sessionId) => {
+      setSelectedSessionId(sessionId);
+      setShowAddModal(true);
+    }
 
     const openEditModal = (sessionId, set) => {
       setSelectedSessionId(sessionId);
       setSelectedSet(set);
-      setShowModal(true);
+      setShowEditModal(true);
     };
 
     const closeModal = () => {
-      setShowModal(false);
+      setShowEditModal(false);
+      setShowAddModal(false);
       setSelectedSet(null);
       setSelectedSessionId(null);
     };
@@ -63,9 +69,13 @@ function WorkoutList() {
               <h3 className="font-semibold text-lg text-gray-700">
                 📅 {session.date}
               </h3>
-              <p className="text-sm text-gray-500">{session.note}</p>
+              <p className="text-sm text-gray-500">
+                {session.note}
+              </p>
+              
 
               <ul className="mt-2 space-y-1 text-sm">
+                <button onClick={() => openAddModel(session.sessionId)} >＋</button>
                 {session.sets.map((set, idx) => (
                   <li key={idx} className="flex justify-between items-center">
                     <span>
@@ -82,8 +92,17 @@ function WorkoutList() {
           ))
         )}
 
-        {showModal && selectedSet && (
-          <EditSetModal 
+        {showAddModal && (
+          <ListAddSet
+            sessionId={selectedSessionId}
+            userId={userId}
+            onClose={closeModal}
+            onSave={fetchSessions}
+          />
+        )}
+
+        {showEditModal && selectedSet && (
+          <ListEditSet 
             key={selectedSet?.id}
             set={selectedSet}
             sessionId={selectedSessionId}

@@ -1,0 +1,144 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&display=swap');
+
+:root {
+    --warm-bg: #faf9f7;
+    --warm-gray-50: #f7f6f4;
+    --warm-gray-100: #f0eeeb;
+    --warm-gray-200: #e5e2dd;
+    --warm-gray-300: #d6d2cc;
+    --warm-gray-800: #2d2b29;
+    --warm-black: #252422;
+    --accent-color: #8fb3a0;
+    --accent-light: #e8f0ec;
+}
+
+body {
+    font-family: 'Noto Sans TC', sans-serif;
+    background-color: var(--warm-bg);
+    color: #3a3a3a;
+}
+
+.main-content {
+    transition: margin-left 0.3s ease;
+}
+
+@media (max-width: 768px) {
+    .main-content {
+        margin-left: 0;
+    }
+}
+
+.nav-link {
+    transition: all 0.2s ease;
+}
+
+.nav-link:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.nav-link.active {
+    background-color: var(--accent-color);
+    color: white;
+}
+
+.card {
+    transition: transform 0.1s ease, box-shadow 0.1s ease;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08);
+}
+
+.status-indicator {
+    transition: transform 0.3s ease;
+}
+
+.status-indicator:hover {
+    transform: scale(1.05);
+}
+
+.bg-warm {
+    background-color: #f5f5f5;
+}
+
+.bg{
+    background-color: #f5f5f5;
+}
+
+.bg-warm-gray-100 {
+    background-color: var(--warm-gray-100);
+}
+
+.bg-warm-gray-200 {
+    background-color: var(--warm-gray-200);
+}
+
+.bg-warm-black {
+    background-color: var(--warm-black);
+}
+
+.text-warm-black {
+    color: var(--warm-black);
+}
+
+.hover\:bg-warm-gray-800:hover {
+    background-color: var(--warm-gray-800);
+}
+
+.subtle-shadow {
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+}
+
+.gradient-bg {
+    background: linear-gradient(135deg, var(--warm-bg) 0%, var(--warm-gray-50) 100%);
+}
+
+.accent-gradient {
+    background: linear-gradient(135deg, var(--accent-color) 0%, #7da090 100%);
+}
+
+.progress-ring-circle {
+    transition: stroke-dashoffset 0.35s;
+    transform: rotate(-90deg);
+    transform-origin: 50% 50%;
+}
+
+.template-scroll {
+    scrollbar-width: thin;
+    scrollbar-color: #737373 var(--warm-gray-100);
+}
+
+.template-scroll::-webkit-scrollbar {
+    height: 6px;
+}
+
+.template-scroll::-webkit-scrollbar-track {
+    background: var(--warm-gray-100);
+    border-radius: 10px;
+}
+
+.template-scroll::-webkit-scrollbar-thumb {
+    background-color: var(--accent-color);
+    border-radius: 10px;
+}
+
+.calendar-day {
+    aspect-ratio: 1;
+    transition: all 0.2s ease;
+}
+
+.calendar-day:hover {
+    transform: scale(1.1);
+    z-index: 10;
+}
+
+.workout-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+}
+
+.chart-container {
+    height: 200px;
+}

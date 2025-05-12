@@ -4,16 +4,20 @@ import {
   BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid, ResponsiveContainer
 } from "recharts";
 
-function PopularTypesChart() {
+function PopularTypesChart({userId}) {
   const [data, setData] = useState([]);
+  if(!userId){
+    console.log("沒有使用者id");
+    return;
+  } 
 
   useEffect(() => {
     axiosInstance
-      .get("/user/1/workouts/popular-types")
+      .get(`/user/${userId}/workouts/popular-type`)
       .then((res) => {
-        const chartData = Object.entries(res.data).map(([type, count]) => ({
-          type,
-          count
+        const chartData = res.data.map((item) => ({
+          type: item.type,
+          count: item.count
         }));
         setData(chartData);
       })

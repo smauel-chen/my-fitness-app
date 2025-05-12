@@ -1,0 +1,1055 @@
+        <Route path="/dashboard/*" element={
+
+                // {/* <AddWorkoutTypeForm onAddSuccess={fetchWorkoutTypes} />
+                // <AddWorkoutForm onAddSuccess={fetchSessions} />
+                // <WorkoutList /> */}
+              <DashBoardPage userId = {userId}/>
+}
+        />
+        <Route
+          path="/dashboard/charts"
+          element={
+            <ProtectedRoute>
+              <Dashboard userId = {userId}/>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/types"
+          element={
+            <ProtectedRoute>
+              <WorkoutTypeManager />
+            </ProtectedRoute>
+          }
+        />
+        <Route path="/dashboard/demo" element={<DemoDashboard />}/> 
+
+
+
+WORKOUTTYPEPAGE STATIC DATA
+<li className="workout-item p-4 animate-fade-in" style="animation-delay: 0.05s">
+  <div className="flex items-center justify-between">
+      <div className="flex items-center">
+          <div className="h-10 w-10 rounded-full icon-bg-strength flex items-center justify-center text-white mr-4">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3" />
+              </svg>
+          </div>
+          <div>
+              <h3 className="font-medium text-gray-800">Barbell Squat</h3>
+              <div className="flex flex-wrap gap-1 mt-1">
+                  <span className="px-2 py-0.5 bg-gray-100 text-xs text-gray-600 rounded">Legs</span>
+                  <span className="px-2 py-0.5 bg-gray-100 text-xs text-gray-600 rounded">Compound</span>
+                  <span className="px-2 py-0.5 bg-gray-100 text-xs text-gray-600 rounded">Barbell</span>
+              </div>
+          </div>
+      </div>
+      <button className="px-3 py-1.5 bg-gray-800 text-white text-sm rounded hover:bg-gray-700 transition-colors">Details</button>
+  </div>
+</li>
+
+{/* <!-- Leg Press --> */}
+<li className="workout-item p-4 animate-fade-in" style="animation-delay: 0.1s">
+  <div className="flex items-center justify-between">
+      <div className="flex items-center">
+          <div className="h-10 w-10 rounded-full icon-bg-strength flex items-center justify-center text-white mr-4">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 11.5V14m0-2.5v-6a1.5 1.5 0 113 0m-3 6a1.5 1.5 0 00-3 0v2a7.5 7.5 0 0015 0v-5a1.5 1.5 0 00-3 0m-6-3V11m0-5.5v-1a1.5 1.5 0 013 0v1m0 0V11m0-5.5a1.5 1.5 0 013 0v3m0 0V11" />
+              </svg>
+          </div>
+          <div>
+              <h3 className="font-medium text-gray-800">Leg Press</h3>
+              <div className="flex flex-wrap gap-1 mt-1">
+                  <span className="px-2 py-0.5 bg-gray-100 text-xs text-gray-600 rounded">Legs</span>
+                  <span className="px-2 py-0.5 bg-gray-100 text-xs text-gray-600 rounded">Compound</span>
+                  <span className="px-2 py-0.5 bg-gray-100 text-xs text-gray-600 rounded">Machine</span>
+              </div>
+          </div>
+      </div>
+      <button className="px-3 py-1.5 bg-gray-800 text-white text-sm rounded hover:bg-gray-700 transition-colors">Details</button>
+  </div>
+</li>
+
+{/* <!-- Romanian Deadlift --> */}
+<li className="workout-item p-4 animate-fade-in" style="animation-delay: 0.15s">
+  <div className="flex items-center justify-between">
+      <div className="flex items-center">
+          <div className="h-10 w-10 rounded-full icon-bg-strength flex items-center justify-center text-white mr-4">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3" />
+              </svg>
+          </div>
+          <div>
+              <h3 className="font-medium text-gray-800">Romanian Deadlift</h3>
+              <div className="flex flex-wrap gap-1 mt-1">
+                  <span className="px-2 py-0.5 bg-gray-100 text-xs text-gray-600 rounded">Legs</span>
+                  <span className="px-2 py-0.5 bg-gray-100 text-xs text-gray-600 rounded">Hamstrings</span>
+                  <span className="px-2 py-0.5 bg-gray-100 text-xs text-gray-600 rounded">Barbell</span>
+              </div>
+          </div>
+      </div>
+      <button className="px-3 py-1.5 bg-gray-800 text-white text-sm rounded hover:bg-gray-700 transition-colors">Details</button>
+  </div>
+</li>
+
+{/* <!-- Walking Lunges --> */}
+<li className="workout-item p-4 animate-fade-in" style="animation-delay: 0.2s">
+  <div className="flex items-center justify-between">
+      <div className="flex items-center">
+          <div className="h-10 w-10 rounded-full icon-bg-balance flex items-center justify-center text-white mr-4">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+              </svg>
+          </div>
+          <div>
+              <h3 className="font-medium text-gray-800">Walking Lunges</h3>
+              <div className="flex flex-wrap gap-1 mt-1">
+                  <span className="px-2 py-0.5 bg-gray-100 text-xs text-gray-600 rounded">Legs</span>
+                  <span className="px-2 py-0.5 bg-gray-100 text-xs text-gray-600 rounded">Unilateral</span>
+                  <span className="px-2 py-0.5 bg-gray-100 text-xs text-gray-600 rounded">Dumbbell</span>
+              </div>
+          </div>
+      </div>
+      <button className="px-3 py-1.5 bg-gray-800 text-white text-sm rounded hover:bg-gray-700 transition-colors">Details</button>
+  </div>
+</li>
+
+{/* <!-- Leg Extension --> */}
+<li className="workout-item p-4 animate-fade-in" style="animation-delay: 0.25s">
+  <div className="flex items-center justify-between">
+      <div className="flex items-center">
+          <div className="h-10 w-10 rounded-full icon-bg-strength flex items-center justify-center text-white mr-4">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 11.5V14m0-2.5v-6a1.5 1.5 0 113 0m-3 6a1.5 1.5 0 00-3 0v2a7.5 7.5 0 0015 0v-5a1.5 1.5 0 00-3 0m-6-3V11m0-5.5v-1a1.5 1.5 0 013 0v1m0 0V11m0-5.5a1.5 1.5 0 013 0v3m0 0V11" />
+              </svg>
+          </div>
+          <div>
+              <h3 className="font-medium text-gray-800">Leg Extension</h3>
+              <div className="flex flex-wrap gap-1 mt-1">
+                  <span className="px-2 py-0.5 bg-gray-100 text-xs text-gray-600 rounded">Legs</span>
+                  <span className="px-2 py-0.5 bg-gray-100 text-xs text-gray-600 rounded">Isolation</span>
+                  <span className="px-2 py-0.5 bg-gray-100 text-xs text-gray-600 rounded">Machine</span>
+              </div>
+          </div>
+      </div>
+      <button className="px-3 py-1.5 bg-gray-800 text-white text-sm rounded hover:bg-gray-700 transition-colors">Details</button>
+  </div>
+</li>
+
+{/* <!-- Lying Leg Curl --> */}
+<li className="workout-item p-4 animate-fade-in" style="animation-delay: 0.3s">
+  <div className="flex items-center justify-between">
+      <div className="flex items-center">
+          <div className="h-10 w-10 rounded-full icon-bg-strength flex items-center justify-center text-white mr-4">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 11.5V14m0-2.5v-6a1.5 1.5 0 113 0m-3 6a1.5 1.5 0 00-3 0v2a7.5 7.5 0 0015 0v-5a1.5 1.5 0 00-3 0m-6-3V11m0-5.5v-1a1.5 1.5 0 013 0v1m0 0V11m0-5.5a1.5 1.5 0 013 0v3m0 0V11" />
+              </svg>
+          </div>
+          <div>
+              <h3 className="font-medium text-gray-800">Lying Leg Curl</h3>
+              <div className="flex flex-wrap gap-1 mt-1">
+                  <span className="px-2 py-0.5 bg-gray-100 text-xs text-gray-600 rounded">Legs</span>
+                  <span className="px-2 py-0.5 bg-gray-100 text-xs text-gray-600 rounded">Hamstrings</span>
+                  <span className="px-2 py-0.5 bg-gray-100 text-xs text-gray-600 rounded">Machine</span>
+              </div>
+          </div>
+      </div>
+      <button className="px-3 py-1.5 bg-gray-800 text-white text-sm rounded hover:bg-gray-700 transition-colors">Details</button>
+  </div>
+</li>
+
+{/* <!-- Standing Calf Raises --> */}
+<li className="workout-item p-4 animate-fade-in" style="animation-delay: 0.35s">
+  <div className="flex items-center justify-between">
+      <div className="flex items-center">
+          <div className="h-10 w-10 rounded-full icon-bg-strength flex items-center justify-center text-white mr-4">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 11.5V14m0-2.5v-6a1.5 1.5 0 113 0m-3 6a1.5 1.5 0 00-3 0v2a7.5 7.5 0 0015 0v-5a1.5 1.5 0 00-3 0m-6-3V11m0-5.5v-1a1.5 1.5 0 013 0v1m0 0V11m0-5.5a1.5 1.5 0 013 0v3m0 0V11" />
+              </svg>
+          </div>
+          <div>
+              <h3 className="font-medium text-gray-800">Standing Calf Raises</h3>
+              <div className="flex flex-wrap gap-1 mt-1">
+                  <span className="px-2 py-0.5 bg-gray-100 text-xs text-gray-600 rounded">Legs</span>
+                  <span className="px-2 py-0.5 bg-gray-100 text-xs text-gray-600 rounded">Calves</span>
+                  <span className="px-2 py-0.5 bg-gray-100 text-xs text-gray-600 rounded">Machine</span>
+              </div>
+          </div>
+      </div>
+      <button className="px-3 py-1.5 bg-gray-800 text-white text-sm rounded hover:bg-gray-700 transition-colors">Details</button>
+  </div>
+</li>
+
+{/* <!-- Barbell Hip Thrust --> */}
+<li className="workout-item p-4 animate-fade-in" style="animation-delay: 0.4s">
+  <div className="flex items-center justify-between">
+      <div className="flex items-center">
+          <div className="h-10 w-10 rounded-full icon-bg-strength flex items-center justify-center text-white mr-4">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3" />
+              </svg>
+          </div>
+          <div>
+              <h3 className="font-medium text-gray-800">Barbell Hip Thrust</h3>
+              <div className="flex flex-wrap gap-1 mt-1">
+                  <span className="px-2 py-0.5 bg-gray-100 text-xs text-gray-600 rounded">Legs</span>
+                  <span className="px-2 py-0.5 bg-gray-100 text-xs text-gray-600 rounded">Glutes</span>
+                  <span className="px-2 py-0.5 bg-gray-100 text-xs text-gray-600 rounded">Barbell</span>
+              </div>
+          </div>
+      </div>
+      <button className="px-3 py-1.5 bg-gray-800 text-white text-sm rounded hover:bg-gray-700 transition-colors">Details</button>
+  </div>
+</li>
+
+{/* <!-- Box Jump --> */}
+<li className="workout-item p-4 animate-fade-in" style="animation-delay: 0.45s">
+  <div className="flex items-center justify-between">
+      <div className="flex items-center">
+          <div className="h-10 w-10 rounded-full icon-bg-cardio flex items-center justify-center text-white mr-4">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+              </svg>
+          </div>
+          <div>
+              <h3 className="font-medium text-gray-800">Box Jump</h3>
+              <div className="flex flex-wrap gap-1 mt-1">
+                  <span className="px-2 py-0.5 bg-gray-100 text-xs text-gray-600 rounded">Legs</span>
+                  <span className="px-2 py-0.5 bg-gray-100 text-xs text-gray-600 rounded">Plyometric</span>
+                  <span className="px-2 py-0.5 bg-gray-100 text-xs text-gray-600 rounded">Equipment</span>
+              </div>
+          </div>
+      </div>
+      <button className="px-3 py-1.5 bg-gray-800 text-white text-sm rounded hover:bg-gray-700 transition-colors">Details</button>
+  </div>
+</li>
+
+{/* <!-- Wall Sit --> */}
+<li className="workout-item p-4 animate-fade-in" style="animation-delay: 0.5s">
+  <div className="flex items-center justify-between">
+      <div className="flex items-center">
+          <div className="h-10 w-10 rounded-full icon-bg-flexibility flex items-center justify-center text-white mr-4">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+          </div>
+          <div>
+              <h3 className="font-medium text-gray-800">Wall Sit</h3>
+              <div className="flex flex-wrap gap-1 mt-1">
+                  <span className="px-2 py-0.5 bg-gray-100 text-xs text-gray-600 rounded">Legs</span>
+                  <span className="px-2 py-0.5 bg-gray-100 text-xs text-gray-600 rounded">Isometric</span>
+                  <span className="px-2 py-0.5 bg-gray-100 text-xs text-gray-600 rounded">Bodyweight</span>
+              </div>
+          </div>
+      </div>
+      <button className="px-3 py-1.5 bg-gray-800 text-white text-sm rounded hover:bg-gray-700 transition-colors">Details</button>
+  </div>
+</li>
+
+{/* <!-- Pistol Squat --> */}
+<li className="workout-item p-4 animate-fade-in" style="animation-delay: 0.55s">
+  <div className="flex items-center justify-between">
+      <div className="flex items-center">
+          <div className="h-10 w-10 rounded-full icon-bg-balance flex items-center justify-center text-white mr-4">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+              </svg>
+          </div>
+          <div>
+              <h3 className="font-medium text-gray-800">Pistol Squat</h3>
+              <div className="flex flex-wrap gap-1 mt-1">
+                  <span className="px-2 py-0.5 bg-gray-100 text-xs text-gray-600 rounded">Legs</span>
+                  <span className="px-2 py-0.5 bg-gray-100 text-xs text-gray-600 rounded">Advanced</span>
+                  <span className="px-2 py-0.5 bg-gray-100 text-xs text-gray-600 rounded">Bodyweight</span>
+              </div>
+          </div>
+      </div>
+      <button className="px-3 py-1.5 bg-gray-800 text-white text-sm rounded hover:bg-gray-700 transition-colors">Details</button>
+  </div>
+</li>
+
+{/* <!-- Step-up --> */}
+<li className="workout-item p-4 animate-fade-in" style="animation-delay: 0.6s">
+  <div className="flex items-center justify-between">
+      <div className="flex items-center">
+          <div className="h-10 w-10 rounded-full icon-bg-balance flex items-center justify-center text-white mr-4">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+              </svg>
+          </div>
+          <div>
+              <h3 className="font-medium text-gray-800">Dumbbell Step-up</h3>
+              <div className="flex flex-wrap gap-1 mt-1">
+                  <span className="px-2 py-0.5 bg-gray-100 text-xs text-gray-600 rounded">Legs</span>
+                  <span className="px-2 py-0.5 bg-gray-100 text-xs text-gray-600 rounded">Unilateral</span>
+                  <span className="px-2 py-0.5 bg-gray-100 text-xs text-gray-600 rounded">Dumbbell</span>
+              </div>
+          </div>
+      </div>
+      <button className="px-3 py-1.5 bg-gray-800 text-white text-sm rounded hover:bg-gray-700 transition-colors">Details</button>
+  </div>
+</li>
+</ul>
+
+
+WORKOUTTYPE PAGE SIDEBAR
+{/* <!-- Sidebar --> */}
+<div className="w-64 bg-gray-900 text-white">
+    <div className="p-4 flex items-center">
+        <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        <h1 className="ml-2 text-xl font-bold">Circuit Pro</h1>
+    </div>
+    <nav className="mt-6">
+        <a href="#" className="sidebar-item flex items-center px-4 py-3 text-gray-300 hover:text-white">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+            </svg>
+            Dashboard
+        </a>
+        <a href="#" className="sidebar-item flex items-center px-4 py-3 text-gray-300 hover:text-white">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+            </svg>
+            Training Records
+        </a>
+        <a href="#" className="sidebar-item active flex items-center px-4 py-3 text-white">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+            </svg>
+            Workout Types
+        </a>
+        <a href="#" className="sidebar-item flex items-center px-4 py-3 text-gray-300 hover:text-white">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            Schedule
+        </a>
+        <a href="#" className="sidebar-item flex items-center px-4 py-3 text-gray-300 hover:text-white">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+            </svg>
+            Clients
+        </a>
+        <a href="#" className="sidebar-item flex items-center px-4 py-3 text-gray-300 hover:text-white">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+            </svg>
+            Analytics
+        </a>
+        <a href="#" className="sidebar-item flex items-center px-4 py-3 text-gray-300 hover:text-white">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+            Settings
+        </a>
+    </nav>
+    <div className="absolute bottom-0 w-64 p-4 bg-gray-800">
+        <div className="flex items-center">
+            <div className="h-10 w-10 rounded-full bg-gray-600 flex items-center justify-center text-white font-medium">
+                JS
+            </div>
+            <div className="ml-3">
+                <p className="text-sm font-medium text-white">John Smith</p>
+                <p className="text-xs text-gray-400">Circuit Trainer</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+WORKOUT RECORD PAGE JAVASCRIPT
+
+// Sample data
+let records = [
+    { 
+        id: 1, 
+        title: "Chest & Triceps", 
+        date: "2023-06-15", 
+        notes: "Great session today. Increased bench press weight by 5kg. Feeling stronger!",
+        tags: ["strength", "upper body"],
+        exercises: [
+            { name: "Bench Press", sets: 4, reps: "8-10", weight: "80kg" },
+            { name: "Incline Dumbbell Press", sets: 3, reps: "10-12", weight: "25kg" },
+            { name: "Tricep Pushdowns", sets: 3, reps: "12-15", weight: "35kg" },
+            { name: "Dips", sets: 3, reps: "10", weight: "Bodyweight" }
+        ]
+    },
+    { 
+        id: 2, 
+        title: "HIIT Cardio", 
+        date: "2023-06-17", 
+        notes: "Intense session. Kept heart rate above 150bpm for most of the workout.",
+        tags: ["cardio", "intense"],
+        exercises: [
+            { name: "Burpees", sets: 4, reps: "20", weight: "Bodyweight" },
+            { name: "Mountain Climbers", sets: 4, reps: "30 sec", weight: "Bodyweight" },
+            { name: "Jump Squats", sets: 4, reps: "15", weight: "Bodyweight" },
+            { name: "High Knees", sets: 4, reps: "30 sec", weight: "Bodyweight" }
+        ]
+    },
+    { 
+        id: 3, 
+        title: "Leg Day", 
+        date: "2023-06-19", 
+        notes: "Focused on form today. Legs are definitely going to be sore tomorrow!",
+        tags: ["strength", "lower body"],
+        exercises: [
+            { name: "Squats", sets: 4, reps: "8-10", weight: "100kg" },
+            { name: "Romanian Deadlifts", sets: 3, reps: "10-12", weight: "80kg" },
+            { name: "Leg Press", sets: 3, reps: "12-15", weight: "150kg" },
+            { name: "Calf Raises", sets: 4, reps: "15-20", weight: "60kg" }
+        ]
+    },
+];
+
+// 根據搜尋與篩選條件產生的列表
+const filteredRecords = records.filter((record) => {
+    const matchesSearch = record.title.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesTags = activeFilters.length === 0 || record.tags.some(tag => activeFilters.includes(tag));
+    return matchesSearch && matchesTags;
+});
+
+
+
+
+    // DOM Elements
+    const recordsList = document.getElementById('records-list');
+    const recordTitle = document.getElementById('record-title');
+    const recordDate = document.getElementById('record-date');
+    const recordNotes = document.getElementById('record-notes');
+    const emptyState = document.getElementById('empty-state');
+    const searchInput = document.getElementById('search-input');
+    const addRecordBtn = document.getElementById('add-record-btn');
+    const tagFilterBtn = document.getElementById('tag-filter-btn');
+    const tagFilters = document.getElementById('tag-filters');
+    const recordModal = document.getElementById('record-modal');
+    const modalTitle = document.getElementById('modal-title');
+    const exercisesContainer = document.getElementById('exercises-container');
+    const addExerciseBtn = document.getElementById('add-exercise-btn');
+    const recordTagsContainer = document.getElementById('record-tags-container');
+    const newTagInput = document.getElementById('new-tag-input');
+    const addTagBtn = document.getElementById('add-tag-btn');
+    const cancelBtn = document.getElementById('cancel-btn');
+    const saveBtn = document.getElementById('save-btn');
+    const detailModal = document.getElementById('detail-modal');
+    const detailTitle = document.getElementById('detail-title');
+    const detailDate = document.getElementById('detail-date');
+    const detailExerciseCount = document.getElementById('detail-exercise-count');
+    const detailTags = document.getElementById('detail-tags');
+    const detailNotes = document.getElementById('detail-notes');
+    const detailExercises = document.getElementById('detail-exercises');
+    const closeDetailBtn = document.getElementById('close-detail-btn');
+    const editFromDetailBtn = document.getElementById('edit-from-detail-btn');
+    const tagFilterModal = document.getElementById('tag-filter-modal');
+    const allTagsContainer = document.getElementById('all-tags-container');
+    const clearFiltersBtn = document.getElementById('clear-filters-btn');
+    const applyFiltersBtn = document.getElementById('apply-filters-btn');
+
+    // App state
+    let currentRecordId = null;
+    let currentRecordTags = [];
+    let currentRecordExercises = [];
+    let activeFilters = new Set();
+    let isTagFiltersVisible = false;
+
+    // Initialize the app
+    function init() {
+        renderRecordsList();
+        setupEventListeners();
+    }
+
+    // Render the records list
+    function renderRecordsList(searchTerm = '') {
+        const filteredRecords = records.filter(record => {
+            // Filter by search term
+            const matchesSearch = searchTerm === '' || 
+                record.title.toLowerCase().includes(searchTerm.toLowerCase());
+            
+            // Filter by active tag filters
+            const matchesTags = activeFilters.size === 0 || 
+                record.tags.some(tag => activeFilters.has(tag));
+            
+            return matchesSearch && matchesTags;
+        });
+        
+        if (filteredRecords.length === 0) {
+            recordsList.innerHTML = '';
+            emptyState.classNameList.remove('hidden');
+        } else {
+            emptyState.classNameList.add('hidden');
+            recordsList.innerHTML = '';
+            
+            filteredRecords.forEach(record => {
+                const tr = document.createElement('tr');
+                tr.classNameName = 'record-item';
+                tr.dataset.id = record.id;
+                tr.innerHTML = `
+                    <td className="px-4 py-3">
+                        <div className="font-medium text-gray-800">${record.title}</div>
+                    </td>
+                    <td className="px-4 py-3 text-gray-600">${formatDate(record.date)}</td>
+                    <td className="px-4 py-3">
+                        <div className="flex flex-wrap gap-1">
+                            ${record.tags.map(tag => `
+                                <span className="tag text-xs px-2 py-1 bg-gray-100 text-gray-800 rounded-full">${tag}</span>
+                            `).join('')}
+                        </div>
+                    </td>
+                    <td className="px-4 py-3">
+                        <div className="flex gap-2">
+                            <button className="view-btn text-gray-600 hover:text-gray-900" data-id="${record.id}">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                    <circle cx="12" cy="12" r="3"></circle>
+                                </svg>
+                            </button>
+                            <button className="edit-btn text-blue-600 hover:text-blue-800" data-id="${record.id}">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                                </svg>
+                            </button>
+                            <button className="delete-btn text-red-600 hover:text-red-800" data-id="${record.id}">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                    <polyline points="3 6 5 6 21 6"></polyline>
+                                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                </svg>
+                            </button>
+                        </div>
+                    </td>
+                `;
+                
+                recordsList.appendChild(tr);
+            });
+            
+            // Add event listeners to view, edit and delete buttons
+            document.querySelectorAll('.view-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const recordId = parseInt(btn.dataset.id);
+                    openDetailModal(recordId);
+                });
+            });
+            
+            document.querySelectorAll('.edit-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const recordId = parseInt(btn.dataset.id);
+                    openEditModal(recordId);
+                });
+            });
+            
+            document.querySelectorAll('.delete-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const recordId = parseInt(btn.dataset.id);
+                    deleteRecord(recordId);
+                });
+            });
+            
+            // Add click event to rows for opening detail view
+            document.querySelectorAll('.record-item').forEach(row => {
+                row.addEventListener('click', () => {
+                    const recordId = parseInt(row.dataset.id);
+                    openDetailModal(recordId);
+                });
+            });
+        }
+        
+        updateTagFilters();
+    }
+
+    // Format date for display
+    function formatDate(dateString) {
+        const options = { year: 'numeric', month: 'short', day: 'numeric' };
+        return new Date(dateString).toLocaleDateString(undefined, options);
+    }
+
+    // Open add record modal
+    function openAddModal() {
+        modalTitle.textContent = 'Add New Training Record';
+        recordTitle.value = '';
+        recordDate.value = new Date().toISOString().split('T')[0];
+        recordNotes.value = '';
+        currentRecordId = null;
+        currentRecordTags = [];
+        currentRecordExercises = [];
+        renderRecordTags();
+        renderExercises();
+        recordModal.classNameList.remove('hidden');
+    }
+
+    // Open edit record modal
+    function openEditModal(recordId) {
+        const record = records.find(r => r.id === recordId);
+        if (!record) return;
+        
+        modalTitle.textContent = 'Edit Training Record';
+        recordTitle.value = record.title;
+        recordDate.value = record.date;
+        recordNotes.value = record.notes || '';
+        currentRecordId = recordId;
+        currentRecordTags = [...record.tags];
+        currentRecordExercises = record.exercises ? [...record.exercises] : [];
+        renderRecordTags();
+        renderExercises();
+        recordModal.classNameList.remove('hidden');
+    }
+
+    // Open detail modal
+    function openDetailModal(recordId) {
+        const record = records.find(r => r.id === recordId);
+        if (!record) return;
+        
+        // Set basic info
+        detailTitle.textContent = record.title;
+        detailDate.textContent = formatDate(record.date);
+        detailExerciseCount.textContent = record.exercises ? record.exercises.length : 0;
+        
+        // Set notes
+        detailNotes.textContent = record.notes || 'No notes for this workout.';
+        
+        // Set tags
+        detailTags.innerHTML = '';
+        if (record.tags && record.tags.length > 0) {
+            record.tags.forEach(tag => {
+                const tagEl = document.createElement('span');
+                tagEl.classNameName = 'tag px-2 py-1 bg-gray-100 text-gray-800 rounded-full text-sm';
+                tagEl.textContent = tag;
+                detailTags.appendChild(tagEl);
+            });
+        } else {
+            detailTags.innerHTML = '<span className="text-gray-500">No tags</span>';
+        }
+        
+        // Set exercises
+        detailExercises.innerHTML = '';
+        if (record.exercises && record.exercises.length > 0) {
+            record.exercises.forEach(exercise => {
+                const exerciseEl = document.createElement('div');
+                exerciseEl.classNameName = 'bg-gray-50 rounded-lg p-3';
+                exerciseEl.innerHTML = `
+                    <div className="flex justify-between items-center">
+                        <div className="font-medium">${exercise.name}</div>
+                        <div className="text-gray-500 text-sm">${exercise.sets} sets</div>
+                    </div>
+                    <div className="flex justify-between text-sm text-gray-600 mt-1">
+                        <div>Reps: ${exercise.reps}</div>
+                        <div>Weight: ${exercise.weight}</div>
+                    </div>
+                `;
+                detailExercises.appendChild(exerciseEl);
+            });
+        } else {
+            detailExercises.innerHTML = '<div className="text-gray-500">No exercises recorded</div>';
+        }
+        
+        // Set current record ID for edit button
+        editFromDetailBtn.dataset.id = recordId;
+        
+        // Show modal
+        detailModal.classNameList.remove('hidden');
+    }
+
+    // Render tags in the record modal
+    function renderRecordTags() {
+        recordTagsContainer.innerHTML = '';
+        
+        currentRecordTags.forEach(tag => {
+            const tagEl = document.createElement('div');
+            tagEl.classNameName = 'tag bg-gray-100 text-gray-800 px-3 py-1 rounded-full flex items-center gap-1';
+            tagEl.innerHTML = `
+                <span>${tag}</span>
+                <button className="remove-tag-btn text-gray-600 hover:text-gray-900" data-tag="${tag}">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
+            `;
+            recordTagsContainer.appendChild(tagEl);
+        });
+        
+        // Add event listeners to remove tag buttons
+        document.querySelectorAll('.remove-tag-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const tagToRemove = btn.dataset.tag;
+                currentRecordTags = currentRecordTags.filter(tag => tag !== tagToRemove);
+                renderRecordTags();
+            });
+        });
+    }
+
+    // Render exercises in the record modal
+    function renderExercises() {
+        exercisesContainer.innerHTML = '';
+        
+        currentRecordExercises.forEach((exercise, index) => {
+            const exerciseEl = document.createElement('div');
+            exerciseEl.classNameName = 'bg-gray-50 rounded-lg p-3';
+            exerciseEl.innerHTML = `
+                <div className="flex justify-between items-center mb-2">
+                    <div className="font-medium">${exercise.name}</div>
+                    <button className="remove-exercise-btn text-gray-600 hover:text-gray-900" data-index="${index}">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                    </button>
+                </div>
+                <div className="grid grid-cols-3 gap-2">
+                    <div>
+                        <label className="block text-xs text-gray-500 mb-1">Sets</label>
+                        <input type="number" min="1" value="${exercise.sets}" className="exercise-sets w-full px-2 py-1 text-sm rounded border border-gray-300" data-index="${index}">
+                    </div>
+                    <div>
+                        <label className="block text-xs text-gray-500 mb-1">Reps</label>
+                        <input type="text" value="${exercise.reps}" className="exercise-reps w-full px-2 py-1 text-sm rounded border border-gray-300" data-index="${index}">
+                    </div>
+                    <div>
+                        <label className="block text-xs text-gray-500 mb-1">Weight</label>
+                        <input type="text" value="${exercise.weight}" className="exercise-weight w-full px-2 py-1 text-sm rounded border border-gray-300" data-index="${index}">
+                    </div>
+                </div>
+            `;
+            exercisesContainer.appendChild(exerciseEl);
+        });
+        
+        // Add event listeners to remove exercise buttons
+        document.querySelectorAll('.remove-exercise-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const index = parseInt(btn.dataset.index);
+                currentRecordExercises.splice(index, 1);
+                renderExercises();
+            });
+        });
+        
+        // Add event listeners to exercise inputs
+        document.querySelectorAll('.exercise-sets').forEach(input => {
+            input.addEventListener('change', () => {
+                const index = parseInt(input.dataset.index);
+                currentRecordExercises[index].sets = parseInt(input.value) || 1;
+            });
+        });
+        
+        document.querySelectorAll('.exercise-reps').forEach(input => {
+            input.addEventListener('change', () => {
+                const index = parseInt(input.dataset.index);
+                currentRecordExercises[index].reps = input.value;
+            });
+        });
+        
+        document.querySelectorAll('.exercise-weight').forEach(input => {
+            input.addEventListener('change', () => {
+                const index = parseInt(input.dataset.index);
+                currentRecordExercises[index].weight = input.value;
+            });
+        });
+    }
+
+    // Add a new exercise
+    function addNewExercise() {
+        currentRecordExercises.push({
+            name: "New Exercise",
+            sets: 3,
+            reps: "10",
+            weight: "Bodyweight"
+        });
+        renderExercises();
+        
+        // Focus on the name of the new exercise
+        const inputs = document.querySelectorAll('.exercise-name');
+        if (inputs.length > 0) {
+            inputs[inputs.length - 1].focus();
+        }
+    }
+
+    // Add a new tag to the current record
+    function addNewTag() {
+        const newTag = newTagInput.value.trim().toLowerCase();
+        if (newTag && !currentRecordTags.includes(newTag)) {
+            currentRecordTags.push(newTag);
+            renderRecordTags();
+            newTagInput.value = '';
+        }
+    }
+
+    // Save the current record
+    function saveRecord() {
+        const title = recordTitle.value.trim();
+        const date = recordDate.value;
+        const notes = recordNotes.value.trim();
+        
+        if (!title || !date ) {
+            alert('Please fill in all required fields with valid values');
+            return;
+        }
+        
+        if (currentRecordId === null) {
+            // Add new record
+            const newId = records.length > 0 ? Math.max(...records.map(r => r.id)) + 1 : 1;
+            records.push({
+                id: newId,
+                title,
+                date,
+                notes,
+                tags: currentRecordTags,
+                exercises: currentRecordExercises
+            });
+        } else {
+            // Update existing record
+            const recordIndex = records.findIndex(r => r.id === currentRecordId);
+            if (recordIndex !== -1) {
+                records[recordIndex] = {
+                    ...records[recordIndex],
+                    title,
+                    date,
+                    notes,
+                    tags: currentRecordTags,
+                    exercises: currentRecordExercises
+                };
+            }
+        }
+        
+        recordModal.classNameList.add('hidden');
+        renderRecordsList(searchInput.value);
+    }
+
+    // Delete a record
+    function deleteRecord(recordId) {
+        if (confirm('Are you sure you want to delete this training record?')) {
+            records = records.filter(r => r.id !== recordId);
+            renderRecordsList(searchInput.value);
+        }
+    }
+
+    // Toggle tag filters visibility
+    function toggleTagFilters() {
+        isTagFiltersVisible = !isTagFiltersVisible;
+        tagFilters.classNameList.toggle('hidden', !isTagFiltersVisible);
+    }
+
+    // Update tag filters
+    function updateTagFilters() {
+        tagFilters.innerHTML = '';
+        
+        if (activeFilters.size > 0) {
+            activeFilters.forEach(tag => {
+                const tagEl = document.createElement('div');
+                tagEl.classNameName = 'tag bg-gray-900 text-white px-3 py-1 rounded-full flex items-center gap-1';
+                tagEl.innerHTML = `
+                    <span>${tag}</span>
+                    <button className="remove-filter-btn text-white hover:text-gray-300" data-tag="${tag}">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                    </button>
+                `;
+                tagFilters.appendChild(tagEl);
+            });
+            
+            // Add event listeners to remove filter buttons
+            document.querySelectorAll('.remove-filter-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const tagToRemove = btn.dataset.tag;
+                    activeFilters.delete(tagToRemove);
+                    renderRecordsList(searchInput.value);
+                });
+            });
+            
+            // Add clear all button
+            const clearBtn = document.createElement('button');
+            clearBtn.classNameName = 'text-sm text-gray-600 hover:text-gray-900 ml-2';
+            clearBtn.textContent = 'Clear all';
+            clearBtn.addEventListener('click', () => {
+                activeFilters.clear();
+                renderRecordsList(searchInput.value);
+            });
+            tagFilters.appendChild(clearBtn);
+            
+            // Show tag filters
+            tagFilters.classNameList.remove('hidden');
+            isTagFiltersVisible = true;
+        } else if (isTagFiltersVisible) {
+            tagFilters.innerHTML = '<div className="text-sm text-gray-500">No active filters</div>';
+        }
+    }
+
+    // Open tag filter modal
+    function openTagFilterModal() {
+        // Get all unique tags
+        const allTags = new Set();
+        records.forEach(record => {
+            record.tags.forEach(tag => allTags.add(tag));
+        });
+        
+        // Render all tags
+        allTagsContainer.innerHTML = '';
+        allTags.forEach(tag => {
+            const isActive = activeFilters.has(tag);
+            const tagEl = document.createElement('button');
+            tagEl.classNameName = `tag px-3 py-1 rounded-full ${
+                isActive ? 'bg-gray-900 text-white' : 'bg-gray-200 text-gray-700'
+            }`;
+            tagEl.textContent = tag;
+            tagEl.dataset.tag = tag;
+            
+            tagEl.addEventListener('click', () => {
+                if (activeFilters.has(tag)) {
+                    activeFilters.delete(tag);
+                    tagEl.classNameName = 'tag px-3 py-1 rounded-full bg-gray-200 text-gray-700';
+                } else {
+                    activeFilters.add(tag);
+                    tagEl.classNameName = 'tag px-3 py-1 rounded-full bg-gray-900 text-white';
+                }
+            });
+            
+            allTagsContainer.appendChild(tagEl);
+        });
+        
+        tagFilterModal.classNameList.remove('hidden');
+    }
+
+    // Apply tag filters
+    function applyTagFilters() {
+        tagFilterModal.classNameList.add('hidden');
+        renderRecordsList(searchInput.value);
+    }
+
+    // Clear all tag filters
+    function clearTagFilters() {
+        activeFilters.clear();
+        
+        // Update UI in the modal
+        document.querySelectorAll('#all-tags-container .tag').forEach(tagEl => {
+            tagEl.classNameName = 'tag px-3 py-1 rounded-full bg-gray-200 text-gray-700';
+        });
+    }
+
+    // Setup event listeners
+    function setupEventListeners() {
+        
+        // Search
+        searchInput.addEventListener('input', () => {
+            renderRecordsList(searchInput.value);
+        });
+        
+        // Record actions
+        addRecordBtn.addEventListener('click', openAddModal);
+        tagFilterBtn.addEventListener('click', openTagFilterModal);
+        cancelBtn.addEventListener('click', () => {
+            recordModal.classNameList.add('hidden');
+        });
+        saveBtn.addEventListener('click', saveRecord);
+        addTagBtn.addEventListener('click', addNewTag);
+        addExerciseBtn.addEventListener('click', addNewExercise);
+        newTagInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                addNewTag();
+            }
+        });
+        
+        // Detail modal
+        closeDetailBtn.addEventListener('click', () => {
+            detailModal.classNameList.add('hidden');
+        });
+        
+        editFromDetailBtn.addEventListener('click', () => {
+            const recordId = parseInt(editFromDetailBtn.dataset.id);
+            detailModal.classNameList.add('hidden');
+            openEditModal(recordId);
+        });
+        
+        // Tag filters
+        clearFiltersBtn.addEventListener('click', clearTagFilters);
+        
+        applyFiltersBtn.addEventListener('click', applyTagFilters);
+        
+        // Close modals when clicking outside
+        recordModal.addEventListener('click', (e) => {
+            if (e.target === recordModal) {
+                recordModal.classNameList.add('hidden');
+            }
+        });
+        
+        detailModal.addEventListener('click', (e) => {
+            if (e.target === detailModal) {
+                detailModal.classNameList.add('hidden');
+            }
+        });   
+        tagFilterModal.addEventListener('click', (e) => {
+            if (e.target === tagFilterModal) {
+                tagFilterModal.classNameList.add('hidden');
+            }
+        });
+    }
+    // Initialize the app
+    init();
+
+DIFFERENT SIDEBAR STYlE
+           <!-- Sidebar -->
+           <div id="sidebar" class="sidebar hidden md:block">
+            <div class="p-4 flex items-center justify-between">
+                <h1 class="text-xl font-bold">FitTrack</h1>
+                <button id="close-sidebar" class="md:hidden text-white">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
+            </div>
+            <div class="mt-6">
+                <a href="#" class="sidebar-link flex items-center px-4 py-3 text-gray-300 hover:text-white">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-3">
+                        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                        <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                    </svg>
+                    Dashboard
+                </a>
+                <a href="#" class="sidebar-link flex items-center px-4 py-3 text-gray-300 hover:text-white">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-3">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                        <polyline points="14 2 14 8 20 8"></polyline>
+                        <line x1="16" y1="13" x2="8" y2="13"></line>
+                        <line x1="16" y1="17" x2="8" y2="17"></line>
+                        <polyline points="10 9 9 9 8 9"></polyline>
+                    </svg>
+                    Training Records
+                </a>
+                <a href="#" class="sidebar-link active flex items-center px-4 py-3 text-white">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-3">
+                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                        <line x1="3" y1="9" x2="21" y2="9"></line>
+                        <line x1="9" y1="21" x2="9" y2="9"></line>
+                    </svg>
+                    Analytics
+                </a>
+                <a href="#" class="sidebar-link flex items-center px-4 py-3 text-gray-300 hover:text-white">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-3">
+                        <path d="M18 8h1a4 4 0 0 1 0 8h-1"></path>
+                        <path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"></path>
+                        <line x1="6" y1="1" x2="6" y2="4"></line>
+                        <line x1="10" y1="1" x2="10" y2="4"></line>
+                        <line x1="14" y1="1" x2="14" y2="4"></line>
+                    </svg>
+                    Workout Types
+                </a>
+                <a href="#" class="sidebar-link flex items-center px-4 py-3 text-gray-300 hover:text-white">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-3">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="12" cy="7" r="4"></circle>
+                    </svg>
+                    Profile
+                </a>
+                <a href="#" class="sidebar-link flex items-center px-4 py-3 text-gray-300 hover:text-white">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-3">
+                        <circle cx="12" cy="12" r="3"></circle>
+                        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                    </svg>
+                    Settings
+                </a>
+            </div>
+        </div>

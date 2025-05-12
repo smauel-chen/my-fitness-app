@@ -1,12 +1,16 @@
-  // src/components/EditSetModal.jsx
+  // src/components/ListEditSet.jsx
   import { useState } from "react";
   import axiosInstance from "../api/axiosInstance.js"
 
-  function EditSetModal({ set, sessionId, userId, onClose, onSave }) {
+  function ListEditSet({ set, sessionId, userId, onClose, onSave }) {
     const [weight, setWeight] = useState(set.weight);
     const [reps, setReps] = useState(set.reps);
 
     const handleSubmit = () => {
+      if(!reps || !weight){
+        alert("欄位不能為空")
+        return;
+      }
       axiosInstance
         .put(`/user/${userId}/session/${sessionId}/set/${set.id}`, {
           typeId: set.typeId, // 保留不變
@@ -14,7 +18,6 @@
           reps,
         })
         .then(() => {
-          alert("更新成功！");
           onSave(); // 通知父元件刷新
           onClose(); // 關閉視窗
         })
@@ -68,4 +71,4 @@
     );
   }
 
-  export default EditSetModal;
+  export default ListEditSet;

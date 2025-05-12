@@ -1,7 +1,9 @@
 import { useState } from "react";
 import axiosInstance from "../api/axiosInstance.js"
+import { useNavigate } from "react-router-dom";
 
 function LoginForm({ onLoginSuccess }) {
+  const navigate = useNavigate();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
@@ -59,7 +61,17 @@ function LoginForm({ onLoginSuccess }) {
       </button>
 
       {message && <p className="text-sm mt-2 text-green-600">{message}</p>}
+      <p className="text-center text-sm mt-2">
+        沒有帳號？
+        <button
+          className="text-blue-500 hover:underline ml-1"
+          onClick={() => navigate("/register")}
+        >
+          註冊
+        </button>
+      </p>
     </form>
+    
   );
 }
 

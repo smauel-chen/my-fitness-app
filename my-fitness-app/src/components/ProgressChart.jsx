@@ -4,10 +4,15 @@ import {
   LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid, ResponsiveContainer
 } from "recharts";
 
-function ProgressChart() {
+function ProgressChart({userId}) {
   const [workoutTypes, setWorkoutTypes] = useState([]);
   const [selectedTypeId, setSelectedTypeId] = useState("");
-  const [chartData, setChartData] = useState([]);
+  const [data, setData] = useState([]);
+  if(!userId){
+    console.log("沒有使用者id");
+    return;
+  }
+  
 
   // 取得所有動作類型
   useEffect(() => {
@@ -21,8 +26,14 @@ function ProgressChart() {
   useEffect(() => {
     if (!selectedTypeId) return;
     axiosInstance
-      .get(`/user/1/workouts/progress?typeID=${selectedTypeId}`)
-      .then((res) => setChartData(res.data))
+      .get(`/user/${userId}/workouts/progress?typeId=${selectedTypeId}`)
+      .then((res) => {
+        const chartData = res.data.map((item) => ({
+          date: item.date,
+          totalWeight: item.totalWeight
+        }));
+        setData(chartData);
+      })
       .catch((err) => console.error("無法取得 progress 資料", err));
   }, [selectedTypeId]);
 
@@ -47,12 +58,12 @@ function ProgressChart() {
       </div>
 
       <ResponsiveContainer width="100%" height={300}>
-        <LineChart data={chartData}>
+        <LineChart data={data}>
           <CartesianGrid strokeDasharray="3 3" />
-          <XAxis dataKey="daty" />
+          <XAxis dataKey="date" />
           <YAxis />
           <Tooltip />
-          <Line type="monotone" dataKey="totalWeights" stroke="#3b82f6" />
+          <Line type="monotone" dataKey="totalWeight" stroke="#3b82f6" />
         </LineChart>
       </ResponsiveContainer>
     </div>

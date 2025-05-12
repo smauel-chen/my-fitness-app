@@ -1,15 +1,22 @@
-import { Routes, Route, Link, Navigate, useNavigate } from "react-router-dom";
-import AddWorkoutForm from "./components/AddWorkoutForm";
-import AddWorkoutTypeForm from "./components/AddWorkoutTypeForm";
-import WorkoutList from "./components/WorkoutList";
+import { Routes, Route, Navigate, useNavigate } from "react-router-dom";
+import RegisterForm from "./components/RegisterForm";
+
 import Dashboard from "./components/Dashboard";
 import LoginForm from "./components/LoginForm";
-import WorkoutTypeManager from "./components/WorkoutTypeManager";
-import DemoDashboard from "./components/DemoDashBoard";
+import DemoDashboard from "./components/DemoDashboard";
 
+import LandingPage from "./components/LandingPage";
+import DashBoardPage from "./components/DashBoardPage";
+
+import WorkoutRecordPage from "./components/WorkoutRecordPage"
 
 import { useEffect, useState } from "react";
 import axiosInstance from "./api/axiosInstance"
+import DashboardLayout from "./components/DashBoardLayout";
+import WorkoutTypePage from "./components/WorkoutTypePage";
+import ChartsPage from "./components/ChartsPage";
+
+// import './App.css';
 
 // 拿 token 自動附加到每次請求（拋出錯誤也自動處理）
 axiosInstance.interceptors.request.use((config) => {
@@ -58,82 +65,39 @@ function App() {
 
   const handleLoginSuccess = (userId) => {
     setUserId(userId);
-    navigate("/"); // 登入成功轉導主頁
+    navigate("/dashboard"); // 登入成功轉導主頁
   };
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {userId && (
-        <nav className="bg-white shadow px-6 py-4 flex gap-6 items-center justify-between">
-          <div className="flex gap-6">
-            <Link to="/" className="text-blue-600 font-semibold hover:underline">
-              📝 新增訓練
-            </Link>
-            <Link to="/dashboard" className="text-blue-600 font-semibold hover:underline">
-              📊 分析總覽
-            </Link>
-            <Link to="/types" className="text-blue-600 font-semibold hover:underline">
-              🧩 訓練動作管理
-            </Link>
-            <Link to="/demo" className="text-blue-600 font-semibold hover:underline">
-              🎬 Demo 展示
-            </Link>
-          </div>
-
-          <div className="flex items-center gap-4">
-            <span className="text-sm text-gray-600">👋 Hi, 使用者 {userId}</span>
-            <button
-              className="text-red-600 font-semibold hover:underline"
-              onClick={() => {
-                localStorage.removeItem("token");
-                localStorage.removeItem("userId");
-                setUserId(null);
-                navigate("/login");
-              }}
-            >
-              登出
-            </button>
-          </div>
-        </nav>
-
-      )}
-
       <Routes>
+        {/* 展示頁面 */}
+        <Route path="/" element={ <LandingPage /> } />
+        {/* 登入註冊頁面 */}
+        <Route path="/register" element={<RegisterForm />} />
         <Route path="/login" element={<LoginForm onLoginSuccess={handleLoginSuccess} />} />
-        <Route
-          path="/"
-          element={
-            <ProtectedRoute>
-              <div className="p-4 max-w-3xl mx-auto space-y-6">
-                              
-                {/*<AddWorkoutTypeForm onAddSuccess={fetchWorkoutTypes} />*/}
-                <AddWorkoutForm onAddSuccess={fetchSessions} />
-                <WorkoutList />
-              </div>
-            </ProtectedRoute>
-          }
-        />
-        <Route
+        {/* sidebar導航 */}
+        <Route 
           path="/dashboard"
           element={
             <ProtectedRoute>
-              <Dashboard />
+              <DashboardLayout userId = {userId} />
             </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/types"
-          element={
-            <ProtectedRoute>
-              <WorkoutTypeManager />
-            </ProtectedRoute>
-          }
-        />
-        <Route path="/demo" element={<DemoDashboard />}/>
-
+          }  
+        >
+          {/* 儀表板 */}
+          <Route index element={<DashBoardPage />}/>
+          {/* 動作資料庫 */}  
+          <Route path="types" element={<WorkoutTypePage />} />
+          {/* <Route path="charts" element={<Dashboard userId = {userId}/>}/> */}
+          <Route path="charts" element={<ChartsPage />}/>
+          <Route path="demo" element={<DemoDashboard />}/>
+          <Route path="page" element={<WorkoutRecordPage/>}/>
+        </Route>
       </Routes>
     </div>
   );
 }
 
 export default App;
+

@@ -4,21 +4,24 @@ import {
   BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid, ResponsiveContainer
 } from "recharts";
 
-function MuscleGroupChart() {
+function MuscleGroupChart({userId}) {
   const [data, setData] = useState([]);
-
+  if(!userId){
+    console.log("沒有使用者id");
+    return;
+  }
   useEffect(() => {
     axiosInstance
-      .get("/user/1/muscle-groups/total-weight")
+      .get(`/user/${userId}/muscle-groups/total-weight`)
       .then((res) => {
-        const chartData = Object.entries(res.data).map(([group, total]) => ({
-          muscle: group,
-          weight: total
+        const chartData = res.data.map((item) => ({
+          muscle: item.muscleGroup,
+          weight: item.totalWeight
         }));
         setData(chartData);
       })
       .catch((err) => console.error("取得肌群資料失敗", err));
-  }, []);
+  }, [userId]);
 
   return (
     <div className="bg-white p-6 rounded-xl shadow-md border border-gray-200 mt-6">

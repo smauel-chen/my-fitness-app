@@ -15,7 +15,6 @@ function WorkoutTypeList() {
     axiosInstance
       .delete(`/workout-types/${id}`)
       .then(() => {
-        alert("刪除成功！");
         fetchWorkoutTypes();
       })
       .catch((err) => {
@@ -30,7 +29,7 @@ function WorkoutTypeList() {
 
   return (
     <div className="p-4 space-y-2">
-      <h2 className="text-xl font-bold">已新增的訓練動作</h2>
+      <h2 className="text-xl font-bold">目前的訓練動作</h2>
       {workoutTypes.length === 0 && <p>目前尚未新增任何動作類型。</p>}
       {workoutTypes.map((type) => (
         <div
