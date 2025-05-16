@@ -1,5 +1,6 @@
 package com.example.demo.entity;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,31 +17,41 @@ public class WorkoutSession {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String date;
-    private String note; // 當次訓練備注
+    private String title; 
+    private LocalDate date;
     
     @ManyToOne
     @JoinColumn(name = "user_id")  // 對應到 user 的主鍵
     @JsonBackReference
     private User user; 
 
-    @OneToMany(mappedBy = "session", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "session", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
-    private List<WorkoutSet> sets;
+    private List<WorkoutExercise> exercises = new ArrayList<>();
     
 
     public void setUser(User user) {
         this.user = user;
     }
 
-    public WorkoutSession(){
-        this.sets = new ArrayList<>();
+    public WorkoutSession(){}
+
+    public WorkoutSession(LocalDate date, String title){
+        this.date = date;
+        this.title = title;
     }
 
-    public WorkoutSession(String date, String note){
-        this.date = date;
-        this.note = note;
-        this.sets = new ArrayList<>();
+    public void addExercise(WorkoutExercise exercise) {
+        exercise.setSession(this);
+        this.exercises.add(exercise);
+    }
+
+    public List<WorkoutExercise> getExercises() {
+        return exercises;
+    }
+
+    public void setExercises(List<WorkoutExercise> exercises) {
+        this.exercises = exercises;
     }
 
     public User getUser() {
@@ -55,27 +66,19 @@ public class WorkoutSession {
         return id;
     }
 
-    public void setNote(String note){
-        this.note = note;
+    public void setNote(String title){
+        this.title = title;
     }
 
-    public String getNote(){
-        return note;
+    public String getTitle(){
+        return title;
     }
     
-    public void setDate(String date){
+    public void setDate(LocalDate date){
         this.date = date;
     }
 
-    public String getDate(){
+    public LocalDate getDate(){
         return date;
-    }
-
-    public void setSets(List<WorkoutSet> sets){
-        this.sets = sets;
-    }
-
-    public List<WorkoutSet> getSets(){
-        return sets;
     }
 }

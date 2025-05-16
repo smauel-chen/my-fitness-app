@@ -10,9 +10,8 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class WorkoutTypeDTO {
-    private Long id;
+public class CreateTypeRequestDTO {
     private String name;
     private String mainTag;
     private List<String> secondaryTags = new ArrayList<>();
-}
+} 

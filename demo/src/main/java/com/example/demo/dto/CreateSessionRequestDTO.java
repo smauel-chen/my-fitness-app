@@ -1,5 +1,6 @@
 package com.example.demo.dto;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,9 +11,8 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class WorkoutTypeDTO {
-    private Long id;
-    private String name;
-    private String mainTag;
-    private List<String> secondaryTags = new ArrayList<>();
-}
+public class CreateSessionRequestDTO {
+        private String title;
+    private LocalDate date;
+    private List<CreateExerciseDTO> exercises = new ArrayList<>();
+} 

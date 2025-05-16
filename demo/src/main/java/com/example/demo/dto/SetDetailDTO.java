@@ -1,16 +1,17 @@
 package com.example.demo.dto;
 
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
+// SetDetailDTO.java
 @Data
-public class WorkoutSetEditDTO {
+@NoArgsConstructor
+public class SetDetailDTO {
     private Integer reps;
     private Integer weight;
 
-    public WorkoutSetEditDTO() {}
-
-    public WorkoutSetEditDTO(Integer reps, Integer weight) {
+    public SetDetailDTO(Integer reps, Integer weight) {
         this.reps = reps;
         this.weight = weight;
     }
-} 
+}

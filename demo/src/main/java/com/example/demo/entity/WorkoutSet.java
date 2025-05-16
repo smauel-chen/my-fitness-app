@@ -7,31 +7,35 @@ import jakarta.persistence.*;
 
 @Entity
 public class WorkoutSet {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private Long typeId;
     private Integer reps;
     private Integer weight;
 
     @ManyToOne
-    @JoinColumn(name = "session_id")
     @JsonBackReference
-    private WorkoutSession session; // link to session
+    private WorkoutExercise exercise;
 
-    public void setSession(WorkoutSession session){
-        this.session = session;
+    // @ManyToOne
+    // @JoinColumn(name = "session_id")
+    // @JsonBackReference
+    // private WorkoutSession session; // link to session
+
+    public WorkoutExercise getExercise() {
+        return exercise;
     }
 
-    public WorkoutSession getSession(){
-        return session;
+    public void setExercise(WorkoutExercise exercise) {
+        this.exercise = exercise;
     }
+
 
     public WorkoutSet(){}
 
-    public WorkoutSet(Long typeId, Integer reps, Integer weight){
-        this.typeId = typeId;
+    public WorkoutSet(Integer reps, Integer weight){
         this.reps = reps;
         this.weight = weight;
     }
@@ -42,14 +46,6 @@ public class WorkoutSet {
 
     public Long getId(){
         return id;
-    }
-
-    public void setTypeId(Long typeId){
-        this.typeId = typeId;
-    }
-
-    public Long getTypeId(){
-        return typeId;
     }
     
     public void setReps(Integer reps){

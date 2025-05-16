@@ -1,25 +1,24 @@
 package com.example.demo.controller;
 
 import java.util.List;
+import java.util.Map;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestBody;
 
-import com.example.demo.dto.MuscleGroupTotalDTO;
-import com.example.demo.dto.PopularTypesDTO;
-import com.example.demo.dto.WeeklyFrequencyDTO;
-import com.example.demo.dto.WeeklySummaryDTO;
-import com.example.demo.dto.WorkoutProgressDTO;
-import com.example.demo.dto.WorkoutSessionRequestDTO;
-import com.example.demo.dto.WorkoutSessionSummaryDTO;
+import com.example.demo.dto.SessionDetailDTO;
+import com.example.demo.dto.VolumeProgressDTO;
+import com.example.demo.dto.CreateSessionRequestDTO;
 import com.example.demo.service.WorkoutSessionService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -28,10 +27,9 @@ import io.swagger.v3.oas.annotations.Parameters;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 
-@RequestMapping("user/{id}")
+@RequestMapping("/user/{id}")
 @RestController
 public class WorkoutSessionController {
-
 
     private final WorkoutSessionService workoutSessionService;
     
@@ -49,9 +47,9 @@ public class WorkoutSessionController {
     })
     @Parameter(name = "id", description = "使用者 ID", required = true)   
     @PostMapping("/session")
-    public ResponseEntity<?> addWorkoutSession(@RequestBody WorkoutSessionRequestDTO workoutSessionRequestDTO, @PathVariable Long id) {
-        workoutSessionService.addSession(id, workoutSessionRequestDTO);
-        return ResponseEntity.ok(workoutSessionRequestDTO);
+    public ResponseEntity<?> addWorkoutSession(@RequestBody CreateSessionRequestDTO requestDTO, @PathVariable Long id) {
+        workoutSessionService.addSession(id, requestDTO);
+        return ResponseEntity.ok(requestDTO);
     }
 
     @Operation(summary = "取得使用者所有訓練紀錄", description = "依照使用者 ID 回傳所有訓練課表與細節")
@@ -77,98 +75,63 @@ public class WorkoutSessionController {
         return ResponseEntity.ok("removed session:" + sessionId);
     }
 
-    
-    @Operation(summary = "取得使用者不同日期訓練課表的資訊", description = "依照使用者 ID 回傳不同日期訓練課表的內容和總重量")
-    @ApiResponse(responseCode = "200", description = "取得成功")
-    @ApiResponse(responseCode = "404", description = "找不到使用者")
-    @GetMapping("/sessions/summary")
-    public ResponseEntity<?> getWorkoutSessionSummaryDTO(@PathVariable Long id) {
-        List<WorkoutSessionSummaryDTO> summaryDTOs = workoutSessionService.getWorkoutSessionSummary(id);
-        return ResponseEntity.ok(summaryDTOs);
+    @PutMapping("/session/{sessionId}")
+    public ResponseEntity<Void> updateSession(
+        @PathVariable Long id,
+        @PathVariable Long sessionId,
+        @RequestBody CreateSessionRequestDTO dto
+    ) {
+        workoutSessionService.updateSession(id, sessionId, dto);
+        return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/session/{sessionId}")
+    public ResponseEntity<SessionDetailDTO> getSessionById(@PathVariable Long id, @PathVariable Long sessionId) {
+        SessionDetailDTO result = workoutSessionService.getSessionDetailById(id, sessionId);
+        return ResponseEntity.ok(result);
     }
 
     @GetMapping("/session-ids")
     public ResponseEntity<List<Long>> getSessionIds(@Parameter(description = "使用者ID", example = "1")@PathVariable Long id) {
         return ResponseEntity.ok(workoutSessionService.getAllSessionIds(id));
     }
-    
 
-    @Operation(summary = "取得使用者每週的訓練紀錄整理", description = "依照使用者 ID 回傳每週的訓練課表整理")
-    @ApiResponse(responseCode = "200", description = "取得成功")
-    @ApiResponse(responseCode = "404", description = "找不到使用者")
-    @GetMapping("/sessions/weekly-summary")
-    public ResponseEntity<?> getWeeklySummary( @PathVariable Long id ){  
-        List<WeeklySummaryDTO> weeklySummaryDTOs = workoutSessionService.getWeeklySummary(id);
-        return ResponseEntity.ok(weeklySummaryDTOs);
+    //通過卡片新增訓練紀錄
+    @PostMapping("/session/from-template/{templateId}")
+    public ResponseEntity<String> createSessionFromTemplate(
+        @PathVariable Long id,
+        @PathVariable Long templateId
+    ) {
+        workoutSessionService.createFromTemplate(id, templateId);
+        return ResponseEntity.status(HttpStatus.CREATED).body("建立成功");
     }
 
-
-    @Operation(
-        summary = "取得每週訓練頻率統計",
-        description = "根據指定使用者 ID，回傳該使用者各週訓練的天數。每週的訓練日只會計算一次，適合用於顯示訓練習慣與規律程度的圖表。"
-    )
-    @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "成功取得訓練頻率資料"),
-        @ApiResponse(responseCode = "404", description = "找不到指定使用者"),
-        @ApiResponse(responseCode = "500", description = "伺服器錯誤")
-    })
-    @GetMapping("/sessions/weekly-frequency")
-    public ResponseEntity<?> getWeeklyWorkoutDays(@PathVariable Long id){
-        List<WeeklyFrequencyDTO> weeklyFrequencyDTOs = workoutSessionService.getWeeklyFrequency(id);
-        return ResponseEntity.ok(weeklyFrequencyDTOs);
+    //chart 1
+    @GetMapping("/charts/tag-frequency")
+    public Map<String, Long> getWorkoutTagFrequency(
+        @PathVariable Long id,
+        @RequestParam String period // e.g., "weekly", "monthly", etc.
+    ) {
+        return workoutSessionService.getTagFrequency(id, period);
     }
 
-    
-    @Operation(
-        summary = "查詢訓練動作進度",
-        description = "根據使用者 ID 與動作類型 ID，取得該動作在各次訓練中的總重量變化情形。"
-    )
-    @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "成功取得訓練進度"),
-        @ApiResponse(responseCode = "404", description = "找不到使用者")
-    })
-    @Parameters({
-        @Parameter(name = "id", description = "使用者 ID", required = true),
-        @Parameter(name = "typeId", description = "動作類型 ID", required = true)
-    })
-    @GetMapping("/muscle-groups/total-weight")//
-    public ResponseEntity<?> getTotalWeightsByMuscleGroup(@PathVariable Long id){
-        List<MuscleGroupTotalDTO> muscleGroupTotalDTOs = workoutSessionService.getTotalWeightsByMuscleGroup(id);
-        return ResponseEntity.ok(muscleGroupTotalDTOs);
+    //chart 2
+    @GetMapping("/charts/muscle-balance")
+    public Map<String, Long> getMuscleGroupBalance(
+        @PathVariable Long id,
+        @RequestParam String period
+    ) {
+        return workoutSessionService.getMuscleGroupBalance(id, period);
     }
 
-
-    @Operation(
-        summary = "取得熱門訓練動作",
-        description = "根據使用者 ID 統計其所有訓練中最常使用的動作類型（依照出現次數排序）"
-    )
-    @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "成功取得熱門訓練動作資料"),
-        @ApiResponse(responseCode = "404", description = "找不到該使用者")
-    })
-    @Parameter(name = "id", description = "使用者 ID", required = true)
-    @GetMapping("/workouts/popular-type")//
-    public ResponseEntity<?> getPopularWorkoutType(@PathVariable Long id){
-        List<PopularTypesDTO> popularTypesDTOs = workoutSessionService.getPopularWorkoutType(id);
-        return ResponseEntity.ok(popularTypesDTOs);
-    }
-    
-    //stream version
-    @Operation(
-    summary = "取得訓練進度紀錄",
-    description = "根據指定使用者 ID 與動作類型 ID，回傳該使用者每一次訓練該動作時的總重量，用於前端繪製訓練成效折線圖。"
-)
-    @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "成功取得進度資料"),
-        @ApiResponse(responseCode = "404", description = "找不到指定使用者"),
-        @ApiResponse(responseCode = "500", description = "伺服器錯誤")
-    })
-    @GetMapping("/workouts/progress")
-    public ResponseEntity<?> getWorkoutProgressByType(
-        @PathVariable Long id, @RequestParam Long typeId
-    ){
-        List<WorkoutProgressDTO> progressDTOs = workoutSessionService.getWorkoutProgressByType(id, typeId);
-        return ResponseEntity.ok(progressDTOs);
+    //chart 3
+    @GetMapping("/charts/volume-progress")
+    public List<VolumeProgressDTO> getVolumeProgress(
+        @PathVariable Long userId,
+        @RequestParam Long typeId,
+        @RequestParam int conunt
+    ) {
+        return workoutSessionService.getVolumeProgress(userId, typeId, conunt);
     }
     
     // @GetMapping("/user/{id}/workouts/progress")

@@ -14,5 +14,7 @@ public enum ApiErrorCode {
     SESSION_FOR_USER_NOT_FOUND, // catch error findbyidanduserid
     TOKEN_INVALID,
     USER_ALREADY_EXISTS,
-    BAD_REQUEST
+    BAD_REQUEST,
+    TEMPLATE_NOT_FOUND,
+    INVALID_REQUEST
 }
