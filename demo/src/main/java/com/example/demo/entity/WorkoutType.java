@@ -23,12 +23,21 @@ public class WorkoutType {
     @ElementCollection
     private List<String> secondaryTags = new ArrayList<>();
 
+    private boolean isCustom = true; // 預設為 true，代表使用者新增
+
     public WorkoutType(){}
 
     public WorkoutType(String name, String mainTag, List<String> secondaryTags){
         this.name = name;
         this.mainTag = mainTag;
         this.secondaryTags = (secondaryTags != null) ? secondaryTags : new ArrayList<>();
+    }
+
+    public WorkoutType(String name, String mainTag, List<String> secondaryTags, Boolean isCustom){
+        this.name = name;
+        this.mainTag = mainTag;
+        this.secondaryTags = (secondaryTags != null) ? secondaryTags : new ArrayList<>();
+        this.isCustom = isCustom;
     }
 
     public void setMainTag(String mainTag){ this.mainTag = mainTag; }
@@ -52,4 +61,7 @@ public class WorkoutType {
     public String getName(){
         return name;
     }
+
+    public Boolean getIsCusetom() { return isCustom; }
+    public void setIsCustom( Boolean isCustom ){ this.isCustom = isCustom; }
 }

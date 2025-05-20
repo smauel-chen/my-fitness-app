@@ -93,7 +93,7 @@ public class WorkoutSessionService {
     public List<WorkoutAllSessionsDTO> getAllSession(Long id){
         userRepository.findById(id).orElseThrow(() -> new ApiException(ApiErrorCode.USER_NOT_FOUND, "找不到使用者, Id:"+ id, HttpStatus.NOT_FOUND));
 
-        List<WorkoutAllSessionsDTO> sessionDTOs =  workoutSessionRepository.findByUser_Id(id).stream().map(session -> {
+        List<WorkoutAllSessionsDTO> sessionDTOs =  workoutSessionRepository.findByUserIdOrderByDateDesc(id).stream().map(session -> {
             List<String> mainTags = session.getExercises().stream()
                 .map(ex ->  ex.getWorkoutType().getMainTag())
                 .filter(Objects::nonNull)
@@ -126,6 +126,7 @@ public class WorkoutSessionService {
                     .collect(Collectors.toList());
             
                 return new ExerciseDetailDTO(
+                    wt.getId(),
                     wt.getName(),
                     wt.getMainTag(),
                     wt.getSecondaryTags(),  // 直接從 entity 取出 secondaryTags
@@ -149,30 +150,31 @@ public class WorkoutSessionService {
     
         // 更新基本欄位
         session.setDate(dto.getDate());
-        session.setNote(dto.getTitle());
+        session.setTitle(dto.getTitle());
     
         // 移除原本的 exercise（包含 set）
         session.getExercises().clear();
     
         List<WorkoutExercise> newExercises = dto.getExercises().stream().map(exDto -> {
             WorkoutType type = workoutTypeRepository.findById(exDto.getTypeId()).orElseThrow(() -> new ApiException(ApiErrorCode.TYPE_NOT_FOUND, "找不到動作", HttpStatus.NOT_FOUND));
-    
+
             WorkoutExercise ex = new WorkoutExercise(type);
-            ex.setSession(session);
-    
+            
             List<WorkoutSet> sets = exDto.getSets().stream().map(setDto -> {
                 WorkoutSet set = new WorkoutSet(setDto.getReps(), setDto.getWeight());
                 set.setExercise(ex);
                 return set;
             }).collect(Collectors.toList());
-    
+            
             ex.setSets(sets);
+            ex.setSession(session);
             return ex;
         }).collect(Collectors.toList());
     
-        session.setExercises(newExercises);
-    
-        // 不需要 save，因為 JPA 已追蹤實體
+        for(WorkoutExercise exercise:newExercises){
+            session.getExercises().add(exercise);
+        }
+        workoutSessionRepository.save(session);
     }
     
     public void deleteSession(Long id, Long sessionId){
@@ -185,7 +187,7 @@ public class WorkoutSessionService {
 
     //新的內容
     //處理訓練紀錄頁面重構時回頭來做這個api
-    public Long createFromTemplate(Long userId, Long templateId) {
+    public void createFromTemplate(Long userId, Long templateId) {
         // 1. 取得 user 與 template
         User user = userRepository.findById(userId).orElseThrow(() -> new ApiException(ApiErrorCode.USER_NOT_FOUND, "使用者不存在", HttpStatus.NOT_FOUND));
 
@@ -213,8 +215,6 @@ public class WorkoutSessionService {
     
         session.setExercises(exercises);
         workoutSessionRepository.save(session);
-    
-        return session.getId();
     }
 
     //chart1
@@ -256,11 +256,11 @@ public class WorkoutSessionService {
     
         return sessions.stream()
             .flatMap(session -> session.getExercises().stream())
-            .flatMap(ex -> {
-                WorkoutType type = ex.getWorkoutType();
-                String mainTag = type.getMainTag();
-                return ex.getSets().stream().map(set -> mainTag); // 每組對應一個 mainTag
-            })
+                .flatMap(ex -> {
+                    WorkoutType type = ex.getWorkoutType();
+                    String mainTag = type.getMainTag();
+                    return ex.getSets().stream().map(set -> mainTag); // 每組對應一個 mainTag
+                })
             .filter(Objects::nonNull)
             .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
     }
@@ -268,11 +268,12 @@ public class WorkoutSessionService {
     //chart3
     public List<VolumeProgressDTO> getVolumeProgress(Long userId, Long typeId, int count) {
         List<WorkoutSession> sessions = workoutSessionRepository.findByUserIdOrderByDateDesc(userId);
-
+        workoutTypeRepository.findById(typeId).orElseThrow(() -> new ApiException(ApiErrorCode.TYPE_NOT_FOUND, "找不到對應的動作", HttpStatus.NOT_FOUND));
+    
         List<VolumeProgressDTO> all = sessions.stream()
             .map(session -> {
                 int volume = session.getExercises().stream()
-                    .filter(ex -> ex.getWorkoutType().getId().equals(typeId))
+                    .filter(ex -> ex.getWorkoutType() != null && ex.getWorkoutType().getId().equals(typeId))
                     .flatMap(ex -> ex.getSets().stream())
                     .mapToInt(set -> set.getReps() * set.getWeight())
                     .sum();
@@ -281,7 +282,7 @@ public class WorkoutSessionService {
             })
             .filter(dto -> dto.getVolume() > 0)
             .limit(count)
-            .toList();
+            .collect(Collectors.toList());
 
         // 往前抓是由新到舊，但圖表要由舊到新
         Collections.reverse(all);

@@ -1,140 +1,31 @@
 import { useState, useEffect, useRef } from 'react';
 import './DashBoardPage.css'
+import axiosInstance from "../api/axiosInstance.js";
 
-function DashBoardPage(){
+function DashBoardPage({userId}){
 
-    // 在 TrainingPlansPage.jsx 頁面中 (或你放卡片的地方)
-    const [mockPlans, setMockPlans] = useState();
-    //     {
-    //         id: 1,
-    //         title: '胸部 + 三頭肌',
-    //         tags: ['計劃1','胸部'],
-    //         date: '4月5號',
-    //         exercises: [
-    //             {   
-    //                 id: 1,
-    //                 name: '啞鈴臥推',   
-    //                 sets: [
-    //                 { id: '1', reps: '8', weight: '50' },
-    //                 { id: '2', reps: '8', weight: '50' },
-    //                 ] 
-    //             },
-    //             {   
-    //                 id: 2,
-    //                 name: '上斜啞鈴臥推',   
-    //                 sets: [
-    //                 { id: '1', reps: '10', weight: '50' },
-    //                 { id: '2', reps: '10', weight: '45' },
-    //                 ] 
-    //             },
-    //             {   
-    //                 id: 3,
-    //                 name: '繩索下拉',   
-    //                 sets: [
-    //                 { id: '1', reps: '10', weight: '30' },
-    //                 { id: '2', reps: '10', weight: '25' },
-    //                 ] 
-    //             },
-    //             {   
-    //                 id: 4,
-    //                 name: '窄距臥推',   
-    //                 sets: [
-    //                 { id: '1', reps: '10', weight: '20' },
-    //                 { id: '2', reps: '10', weight: '20' },
-    //                 ] 
-    //             }
-    //         ]
-    //     }
-    //     ,
-    //     {
-    //         id: 2,
-    //         title: '背部 + 二頭肌',
-    //         tags: ['計劃2', '背部'],
-    //         date: '4月6號',
-    //         exercises: [
-    //             {
-    //                 id: 1,
-    //                 name: '引體向上',
-    //                 sets: [
-    //                     { id: '1', reps: '8', weight: '自體重' },
-    //                     { id: '2', reps: '6', weight: '自體重' },
-    //                 ]
-    //             },
-    //             {
-    //                 id: 2,
-    //                 name: '槓鈴划船',
-    //                 sets: [
-    //                     { id: '1', reps: '10', weight: '60' },
-    //                     { id: '2', reps: '10', weight: '60' },
-    //                 ]
-    //             },
-    //             {
-    //                 id: 3,
-    //                 name: '單手啞鈴划船',
-    //                 sets: [
-    //                     { id: '1', reps: '12', weight: '25' },
-    //                     { id: '2', reps: '12', weight: '25' },
-    //                 ]
-    //             },
-    //             {
-    //                 id: 4,
-    //                 name: 'EZ 槓二頭彎舉',
-    //                 sets: [
-    //                     { id: '1', reps: '12', weight: '30' },
-    //                     { id: '2', reps: '10', weight: '35' },
-    //                 ]
-    //             }
-    //         ]
-    //     },
-    //     {
-    //         id: 3,
-    //         title: '腿部訓練',
-    //         tags: ['計劃3', '腿部'],
-    //         date: '4月7號',
-    //         exercises: [
-    //             {
-    //                 id: 1,
-    //                 name: '槓鈴深蹲',
-    //                 sets: [
-    //                     { id: '1', reps: '8', weight: '80' },
-    //                     { id: '2', reps: '8', weight: '85' },
-    //                 ]
-    //             },
-    //             {
-    //                 id: 2,
-    //                 name: '腿推機',
-    //                 sets: [
-    //                     { id: '1', reps: '10', weight: '150' },
-    //                     { id: '2', reps: '10', weight: '160' },
-    //                 ]
-    //             },
-    //             {
-    //                 id: 3,
-    //                 name: '腿彎舉',
-    //                 sets: [
-    //                     { id: '1', reps: '12', weight: '50' },
-    //                     { id: '2', reps: '12', weight: '55' },
-    //                 ]
-    //             },
-    //             {
-    //                 id: 4,
-    //                 name: '小腿舉',
-    //                 sets: [
-    //                     { id: '1', reps: '15', weight: '60' },
-    //                     { id: '2', reps: '15', weight: '60' },
-    //                 ]
-    //             }
-    //         ]
-    //     }
-        
-    // ]);
+    const [plans, setPlans] = useState([]);
+    
+    useEffect(() => {
+        if (!userId) return;
+        axiosInstance.get(`/user/${userId}/templates`)
+        .then(res => setPlans(res.data))
+        .catch(err => console.error("取的所有 templates 失敗", err));
+    }, [userId]);
+
+    //從後端抓取動作資料
+    const [workoutTypes, setWorkoutTypes] = useState([]);
+
+    useEffect(() => {
+        axiosInstance.get("/workout-types")
+        .then(res => setWorkoutTypes(res.data))
+        .catch(err => console.error("取得動作清單失敗", err));
+    }, []);
 
     const [showOptionsId, setShowOptionsId] = useState(null);
     const [deleteId, setDeleteId] = useState(null); // 記錄要刪除哪個 ID
     const [editPlan, setEditPlan] = useState(null);  // null 或 plan 物件
-
-
-
+        
     useEffect(() => {
         const handleClickOutside = () => {
             setShowOptionsId(null);
@@ -147,9 +38,43 @@ function DashBoardPage(){
         };
     }, [showOptionsId]);
 
+    //點擊卡片後用selectedPlan存取get回傳
     const [selectedPlan, setSelectedPlan] = useState(null);
+    const handleCardClick = (templateId) => {
+        axiosInstance
+        .get(`/user/${userId}/template/${templateId}`)
+        .then(res => {
+        setSelectedPlan(res.data); 
+        })
+        .catch(err => {
+        console.error("取得模板詳細內容失敗", err);
+        });
+    };
 
-    const TrainingPlanCard = ({ plan, setSelectedPlan }) => {
+    //點擊單張卡片編輯選項
+    const handleEdit = (templateId) => {
+        axiosInstance.get(`/user/${userId}/template/${templateId}`)
+            .then(res => {
+                const converted = {
+                ...res.data,
+                exercises: res.data.exercises.map((ex) => ({
+                    ...ex,
+                    sets: ex.sets.map((set) => ({
+                    ...set,
+                    id:crypto.randomUUID?.() ?? Date.now()() + Math.random(), // 🔑 補上 id
+                    })),
+                })),
+                };
+                setEditPlan(converted);
+            })
+            .catch(err => {
+            console.error("取得詳細資料失敗", err);
+            alert("讀取詳細資料失敗");
+            });
+    }; 
+
+    // 卡片呈現
+    const TrainingPlanCard = ({ plan }) => {
         const dropdownRef = useRef();
 
         // 監聽點擊外部事件
@@ -171,11 +96,14 @@ function DashBoardPage(){
 
         return (
             <div
-            onClick={() =>         {if (showOptionsId !== plan.id) {
-          setSelectedPlan(plan);}
-        }}
+            onClick={() => {
+                    if (showOptionsId !== plan.id) {
+                        handleCardClick(plan.id);
+                    }
+                }
+            }
             className="group bg-white rounded-lg overflow-hidden subtle-shadow card flex-shrink-0 transition-colors duration-300 cursor-pointer flex flex-col justify-between"
-            style={{ width: '300px' }} // ✅ 固定高度
+            style={{ width: '300px', height:'300px' }} // ✅ 固定高度
             >
                 
             <div className="group-hover:bg-neutral-800 h-2 bg-warm-gray-300 transition-colors duration-300"></div>
@@ -186,27 +114,27 @@ function DashBoardPage(){
                 <div className="flex justify-between items-start mb-4">
                 <h3 className="text-lg font-bold text-warm-black">{plan.title}</h3>
                 <span className="px-3 py-1 bg-neutral-100 text-sm rounded-md">
-                    {plan.date}
+                    {plan.plannedDate}
                 </span>
                 </div>
 
                 {/* 訓練動作區塊（可滾動） */}
                 <div className="space-y-3 overflow-y-auto pr-1 mb-4" style={{ maxHeight: '140px' }}>
-                {plan.exercises.map((exercise) => (
-                    <div key={exercise.id} className="flex items-center justify-between">
+                {plan.exercises.map((exercise, index) => (
+                    <div key={`${exercise}-${index}`} className="flex items-center justify-between">
                     <div className="flex items-center">
                         <div className="w-2 h-2 bg-neutral-800 rounded-full mr-2"></div>
-                        <span>{exercise.name}</span>
+                        <span>{exercise.typeName}</span>
                     </div>
-                    <span className="text-md mr-6 text-gray-700">x {exercise.sets.length}</span>
+                    <span className="text-md mr-6 text-gray-700">x {exercise.sets}</span>
                     </div>
                 ))}
                 </div>
 
                 {/* 固定底部區塊 */}
-                <div className="relative flex justify-between items-center mt-auto pt-2">
+                <div className="relative flex  justify-between items-center mt-auto pt-2">
                 <div className="flex space-x-2">
-                    {plan.tags?.slice(0, 3).map((tag, index) => (
+                    {plan.mainTags.slice(0, 3).map((tag, index) => (
                     <span key={index} className="px-2 py-1 bg-gray-100 text-xs rounded-full">
                         {tag}
                     </span>
@@ -240,59 +168,176 @@ function DashBoardPage(){
                     ref={dropdownRef}
                     onClick={(e)=>{e.stopPropagation();}}
                     className=" absolute right-4 bottom-6 w-24 bg-white border border-gray-200 rounded-lg shadow-lg z-10">
-                        <button className="w-full text-left px-4 py-2 text-sm hover:bg-gray-100" onClick={(e) => {e.stopPropagation(); setEditPlan(plan)}}>編輯</button>
+                        <button className="w-full text-left px-4 py-2 text-sm hover:bg-gray-100" onClick={(e) => {e.stopPropagation(); handleEdit(plan.id);}}>編輯</button>
                         <button className="w-full text-left px-4 py-2 text-sm hover:bg-gray-100" onClick={(e) => {e.stopPropagation(); setDeleteId(plan.id)}}>刪除</button>
                     </div>
                 )}
                 </div>
             </div>
-            
             </div>
-            
-
         );
-    };
-
-    const handleExerciseChange = (idx, field, value) => {
-        const updatedExercises = [...editPlan.exercises];
-        updatedExercises[idx][field] = value;
-        setEditPlan({ ...editPlan, exercises: updatedExercises });
     };
 
     const handleExerciseSetChange = (exIdx, setIdx, field, value) => {
         const updatedExercises = [...editPlan.exercises];
         updatedExercises[exIdx].sets[setIdx][field] = value;
         setEditPlan({ ...editPlan, exercises: updatedExercises });
-      };
+    };
       
-      const handleAddSet = (exIdx) => {
+    const handleAddSet = (exIdx) => {
         const updatedExercises = [...editPlan.exercises];
-        updatedExercises[exIdx].sets.push({ id: Date.now(), reps: '', weight: '' });
+        updatedExercises[exIdx].sets.push({id:crypto.randomUUID?.() ?? Date.now()() + Math.random(), reps: '', weight: '' });
         setEditPlan({ ...editPlan, exercises: updatedExercises });
-      };
+    };
       
-      const handleRemoveSet = (exIdx, setIdx) => {
+    const handleRemoveSet = (exIdx, setIdx) => {
         const updatedExercises = [...editPlan.exercises];
         updatedExercises[exIdx].sets = updatedExercises[exIdx].sets.filter((_, i) => i !== setIdx);
-        if (updatedExercises[exIdx].sets.length === 0) {
-            updatedExercises.splice(exIdx, 1);
-          }
-        setEditPlan({ ...editPlan, exercises: updatedExercises });
-        
-      };
-      
-      const handleAddExercise = () => {
-        setEditPlan({
-          ...editPlan,
-          exercises: [
-            ...editPlan.exercises,
-            { id: Date.now(), name: '', sets: [{ id: Date.now(), reps: '', weight: '' }] }
-          ]
-        });
-      };
-      
-    
+        setEditPlan({ ...editPlan, exercises: updatedExercises });    
+    };
 
+    const handleDeleteExercise = (exIdx) => {
+        const updatedExercises = [...editPlan.exercises];
+        updatedExercises.splice(exIdx, 1);
+        setEditPlan({ ...editPlan, exercises: updatedExercises });
+    };
+
+    const   emptyPlan = {
+        id: null,
+        title: '',
+        tags: [],
+        plannedDate: new Date().toISOString().slice(0, 10), // 預設為今天 yyyy-mm-dd
+        exercises: [{name: '', sets: [{id:crypto.randomUUID?.() ?? Date.now()() + Math.random(), reps: '', weight: '' }]}],
+    };
+    
+    // 新增動作邏輯
+    const [showExerciseModal, setShowExerciseModal] = useState(false); // 控制 modal 開關
+    const [selectedMainTag, setSelectedMainTag] = useState('All');      // 目前選取的主分類
+    const [searchKeyword, setSearchKeyword] = useState('');            // 搜尋關鍵字
+
+
+    const filteredWorkoutTypes = workoutTypes.filter((type) => {
+        const matchesTag = selectedMainTag === 'All' || type.mainTag === selectedMainTag;
+        const matchesKeyword = type.name.toLowerCase().includes(searchKeyword.toLowerCase());
+        return matchesTag && matchesKeyword;
+    });
+
+    //編輯、新增後變更當前的內容// post put 
+    const [editingExerciseIndex, setEditingExerciseIndex] = useState(null);
+    const addExerciseFromType = (type) => {
+        if (editingExerciseIndex !== null) {
+          // 編輯現有的
+          setEditPlan(prev => {
+            const updatedExercises = [...prev.exercises];
+            updatedExercises[editingExerciseIndex] = {
+              ...updatedExercises[editingExerciseIndex],
+              typeId: type.id,   //後端post/put要求
+              typeName: type.name, // ✅ 只改名字，保留 sets
+              mainTag: type.mainTag,
+            };
+            return {
+              ...prev,
+              exercises: updatedExercises
+            };
+          });
+      
+          setEditingExerciseIndex(null);  // 清空狀態
+        } else {
+          // 新增新的
+          const newExercise = {
+            typeId: type.id,    //後端post/put要求
+            typeName: type.name,//不是dto要求，是前端要求的來自workoutTypeDTO
+            mainTag: type.mainTag,
+            sets: [{id:crypto.randomUUID?.() ?? Date.now()() + Math.random(), reps: '', weight: '' }]
+          };
+      
+          setEditPlan(prev => ({
+            ...prev,
+            exercises: [...prev.exercises, newExercise]
+          }));
+        }
+        setShowExerciseModal(false); // 關閉選單
+    };
+
+    useEffect(() => {
+        if (selectedPlan || editPlan) {
+          document.body.style.overflow = 'hidden'; // ✅ 鎖住 scroll
+        } else {
+          document.body.style.overflow = 'auto'; // ✅ 還原 scroll
+        }
+      
+        // 預防 unmount 沒有回復
+        return () => {
+          document.body.style.overflow = 'auto';
+        };
+    }, [selectedPlan, editPlan]);
+
+    //編輯新增卡片後送出按鈕
+    const handleSavePlan = () => {
+        if (
+          editPlan.exercises.some(
+            (exercise) => (exercise.typeName || exercise.name).trim() === '' || exercise.sets.length === 0
+          ) ||
+          editPlan.title.trim() === ''
+        ) {
+          alert('請填寫所有欄位');
+          return;
+        }
+      
+        const payload = {
+          title: editPlan.title,
+          plannedDate: editPlan.plannedDate,
+          exercises: editPlan.exercises.map((exercise) => ({
+            typeId: exercise.typeId,  // 取你實際的欄位名稱
+            sets: exercise.sets.map((set) => ({
+              reps: Number(set.reps),
+              weight: Number(set.weight),
+            })),
+          })),
+        };
+      
+        const action = (editPlan.id === null)
+          ? axiosInstance.post(`/user/${userId}/template`, payload)
+          : axiosInstance.put(`/user/${userId}/template/${editPlan.id}`, payload);
+      
+        action
+          .then(() => {
+            setEditPlan(null); // 關閉 modal
+            return axiosInstance.get(`/user/${userId}/templates`);
+          })
+          .then(res => {
+            setPlans(res.data); 
+          })
+          .catch(err => {
+            console.error('儲存失敗：', err);
+            alert('儲存失敗，請稍後再試');
+          });
+    };
+
+    //刪除卡片按鈕
+    const handleDeletePlan = (planId) => {
+        axiosInstance.delete(`/user/${userId}/template/${planId}`)
+        .then(() => {
+        // 刪除後重新抓一次所有卡片
+        return axiosInstance.get(`/user/${userId}/templates`);
+        })
+        .then(res => {
+        setPlans(res.data);
+        setDeleteId(null);  // 關閉 modal
+        })
+        .catch((err) => alert("刪除失敗，請稍後再試" + err));
+    };
+
+    //通過卡片新增訓練紀錄
+    const handleStartTraining = (templateId) => {
+        axiosInstance
+            .post(`/user/${userId}/session/from-template/${templateId}`)
+            .then(() => {
+                setSelectedPlan(null);
+            })
+            .catch((err) => {alert('建立訓練紀錄失敗') + (err.response?.data?.message || err.message)});
+    };
+      
     return (
     <div className="bg-neutral-100">    
          {/* <!-- 主要內容 --> */}
@@ -401,7 +446,8 @@ function DashBoardPage(){
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7"></path>
                                 </svg>
                             </button>
-                            <button className="px-4 py-2 bg-neutral-800 text-white rounded-md hover:bg-neutral-600 transition-colors flex items-center space-x-2">
+                            <button onClick={() => setEditPlan(emptyPlan)}
+                                    className="px-4 py-2 bg-neutral-800 text-white rounded-md hover:bg-neutral-600 transition-colors flex items-center space-x-2">
                                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
                                 </svg>
@@ -410,26 +456,25 @@ function DashBoardPage(){
                         </div>
                     </div>
                     
+                    {/* 卡片區 */}
                     <div className="relative">
                         <div id="templateContainer" className="flex overflow-x-auto pb-4 template-scroll gap-4">
-                            {/* 訓練卡片測試 */}
                             <div className="flex gap-4">
-                                {mockPlans && mockPlans.length > 0 ? (
-                                    mockPlans.map((plan) => (
-                                    <TrainingPlanCard key={plan.id} plan={plan} />
+
+                                {/* 卡片狀態，從路徑獲得資料後傳到plans */}
+                                {plans && plans.length > 0 ? (
+                                    plans.map((plan) => (
+                                    <TrainingPlanCard key={plan.id} plan={plan} onClick={() => handleCardClick(plan.id)} />
                                     ))
                                 ) : (
                                     
-                                    <div className="group bg-white rounded text-center  subtle-shadow card flex-shrink-0 transition-colors duration-300 cursor-pointer flex flex-col justify-center"
+                                    <div className="bg-transparent"
                                     style={{ width: '300px', height:'300px'}} // ✅ 固定高度
                                     >
-                                    尚未建立任何訓練計畫</div>
+                                    </div>
                                 )}
-                                {/* </div>
-                                {mockPlans.map((plan) => (
-                                    <TrainingPlanCard key={plan.id} plan={plan} setSelectedPlan={setSelectedPlan}/>
-                                ))}
-                                 */}
+
+                                {/* 卡片編輯modal */}
                                 {editPlan && (
                                     <div
                                         className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50"
@@ -441,46 +486,90 @@ function DashBoardPage(){
                                         }}
                                     >
                                         <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-lg max-h-[80vh]">
-                                            <h2 className="text-lg font-bold mb-4">編輯訓練計劃</h2>
+                                            <h2 className="text-lg font-bold mb-4">
+                                                {editPlan?.id === null ? '新增訓練計畫' : '編輯訓練計畫'}
+                                            </h2>
 
-                                            {/* 計畫名稱 */}
-                                            <div className="mb-4">
-                                                <label className="block text-sm font-medium text-gray-700 mb-1">計畫名稱</label>
+                                            {/* 計畫名稱、設定日期編輯 */}
+                                            <div className="mb-4 grid grid-cols-2 gap-4">
+                                            {/* 計劃名稱欄位 */}
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-700 mb-1">計劃名稱</label>
                                                 <input
-                                                    id="sessionNameInput"
-                                                    type="text"
-                                                    value={editPlan.title}
-                                                    onChange={(e) =>
-                                                        setEditPlan({ ...editPlan, title: e.target.value })
-                                                    }
-                                                    className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-1 focus:ring-neutral-700"
+                                                type="text"
+                                                value={editPlan.title}
+                                                onChange={(e) => setEditPlan({ ...editPlan, title: e.target.value })}
+                                                className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-1 focus:ring-neutral-700"
                                                 />
                                             </div>
 
-                                            {/* 訓練項目 */}
+                                            {/* 日期欄位 */}
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-700 mb-1 ml-1">日期</label>
+                                                <input
+                                                type="date"
+                                                value={editPlan.plannedDate}
+                                                onChange={(e) => setEditPlan({ ...editPlan, plannedDate: e.target.value })}
+                                                className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-1 focus:ring-neutral-700"
+                                                />
+                                            </div>
+                                            </div>
+
+                                            {/* 訓練項目編輯 */}
                                             <label className="block text-sm font-medium text-gray-700 mb-1">訓練項目</label>
                                             <div className="mb-4 max-h-56 overflow-y-auto pr-1">
-                                                {editPlan.exercises.map((ex, idx) => (
-                                                    <div key={ex.id} className="mb-2 ml-3 mr-3 mt-3">
+                                                {editPlan.exercises.map((exercise, index) => (
+                                                    <div key={`${exercise}-${index}`} className="bg-gray-50 rounded p-1 pr-2 duration-200 hover:shadow-lg hover:-translate-y-0.5 mb-2 ml-3 mr-3 mt-3">
                                                         {/* 動作名稱輸入框 */}
                                                         
-                                                        <input
-                                                        type="text"
-                                                        value={ex.name}
-                                                        onChange={(e) => handleExerciseChange(idx, 'name', e.target.value)}
-                                                        className="w-full mb-2 px-4 py-2 rounded border border-gray-300 focus:outline-none focus:ring-1 focus:ring-neutral-700"
-                                                        placeholder="動作名稱"
-                                                        />
+                                                        <div className="flex items-center space-x-2 mb-2">
+                                                        <div
+                                                            className="flex-1 font-semibold text-gray-700 px-4 ml-2 py-2 bg-gray-50 "
+                                                        >
+                                                            {exercise.typeName || '選擇動作'}
+                                                        </div>
+
+                                                        {/* 變更動作按鈕，點擊後跳出選擇動作modal */}
+                                                        <button 
+                                                        onClick={() => {
+                                                            setEditingExerciseIndex(index);
+                                                            setShowExerciseModal(true);
+                                                            }}>
+                                                            <svg
+                                                                className="pl-1 w-6 h-6 text-gray-400 hover:text-gray-700"
+                                                                fill="none"
+                                                                stroke="currentColor"
+                                                                viewBox="0 0 24 24"
+                                                                xmlns="http://www.w3.org/2000/svg"
+                                                            >
+                                                                <path
+                                                                    strokeLinecap="round"
+                                                                    strokeLinejoin="round"
+                                                                    strokeWidth="2"
+                                                                    d="M5 12h.01M12 12h.01M19 12h.01M6 12a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0z"
+                                                                ></path>
+                                                            </svg>
+                                                        </button>
+                                                        <button 
+                                                            onClick={() => handleDeleteExercise(index)}
+                                                            type="button"
+                                                            className=" text-gray-400 hover:text-gray-700 bg-gray-50 p-2 rounded-full">
+                                                                <svg xmlns="http://www.w3.org/2000/svg" className=" h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                                </svg>
+                                                        </button>
+                                                        </div>
+
 
                                                         {/* 多組 reps/weight */}
                                                         <div className="space-y-2 mt-2">
-                                                        {ex.sets.map((set, setIdx) => (
+                                                        {exercise.sets.map((set, setIndex) => (
                                                             <div key={set.id} className="flex items-center gap-2">
-                                                            <label className="text-xs text-gray-500 ml-6    ">次數 (Reps)</label>
+                                                            <label className="text-xs text-gray-500 ml-6">次數 (Reps)</label>
                                                             <input
                                                                 type="text"
                                                                 value={set.reps}
-                                                                onChange={(e) => handleExerciseSetChange(idx, setIdx, 'reps', e.target.value)}
+                                                                onChange={(e) => handleExerciseSetChange(index, setIndex, 'reps', e.target.value)}
                                                                 className="w-1/4 px-2 py-1 rounded text-center border border-gray-300 focus:outline-none focus:ring-1 focus:ring-neutral-700"
                                                             />
                                                             <span className="mx-1 ml-8">×</span>
@@ -489,16 +578,16 @@ function DashBoardPage(){
                                                             <input
                                                                 type="text"
                                                                 value={set.weight}
-                                                                onChange={(e) => handleExerciseSetChange(idx, setIdx, 'weight', e.target.value)}
+                                                                onChange={(e) => handleExerciseSetChange(index, setIndex, 'weight', e.target.value)}
                                                                 className="w-1/4 px-2 py-1 rounded text-center border border-gray-300 focus:outline-none focus:ring-1 focus:ring-neutral-700"
                                                             />
                                                             <label className="text-xs text-gray-500 ml-2 ">kg</label>
 
-                                                            <button
-                                                                onClick={() => handleRemoveSet(idx, setIdx)}
-                                                                className="text-red-500 hover:text-red-700 ml-2"
-                                                            >
-                                                                ✕
+                                                            
+                                                            <button onClick={() => handleRemoveSet(index, setIndex)} type="button" className="remove-set pl-2 text-gray-400 hover:text-gray-700 bg-gray-50  p-1.5 rounded-full">
+                                                                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                                                                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM7 9a1 1 0 000 2h6a1 1 0 100-2H7z" clipRule="evenodd" />
+                                                                </svg>
                                                             </button>
 
                                                             </div>
@@ -507,87 +596,66 @@ function DashBoardPage(){
 
                                                         {/* 新增一組 */}
                                                         <button
-                                                        onClick={() => handleAddSet(idx)}
-                                                        className="mt-2 text-sm text-neutral-700 hover:underline"
+                                                        onClick={() => handleAddSet(index)}
+                                                        className="m-2 ml-6 text-sm text-neutral-700 hover:underline"
                                                         >
                                                         + 新增訓練組
                                                         </button>
                                                     </div>
                                                     ))}
 
-                                                    {/* 最後新增整體動作 */}
+                                                    {/* 新增整體動作 */}
                                                     <div className="px-3 mb-4">
                                                         <button
-                                                        onClick={handleAddExercise}
+                                                        onClick={() => setShowExerciseModal(true)}
                                                         className="w-full py-2 mt-3 text-sm text-white bg-neutral-800 hover:bg-neutral-600 rounded"
                                                         >
                                                         + 新增動作
                                                         </button>
                                                     </div>
-
                                             </div>
-
 
                                             {/* Tags */}
-                                            <div className="mb-4">
-                                                <label className="block text-sm font-medium text-gray-700 mb-1">標籤 (逗號分隔)</label>
-                                                <input
-                                                    type="text"
-                                                    value={editPlan.tags.join(', ')}
-                                                    onChange={(e) =>
-                                                        setEditPlan({
-                                                            ...editPlan,
-                                                            tags: e.target.value.split(',').map((t) => t.trim()),
-                                                        })
-                                                    }
-                                                    className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-1 focus:ring-neutral-700"
-                                                />
+                                            <div className="mb-2">
+                                                <div className="flex flex-wrap gap-2">
+                                                    {editPlan.exercises.filter(ex => ex.mainTag).map((exercise, index) => (
+                                                    <span key={`${exercise}-${index}`} className="px-3 py-1 bg-gray-100 text-sm rounded-full">
+                                                        {exercise.mainTag}
+                                                    </span>
+                                                    ))}
+                                                </div>
                                             </div>
 
-                                            {/* 按鈕 */}
+                                            {/* 更多選項按鈕 */}
                                             <div className="flex justify-end mt-6 space-x-3">
                                                 <button
-                                                    className="px-4 py-2 rounded bg-gray-200 hover:bg-gray-300 transition"
+                                                    className="px-4 py-2 rounded bg-gray-200  hover:bg-gray-300 transition"
                                                     onClick={() => setEditPlan(null)}
                                                 >
                                                     取消
                                                 </button>
                                                 <button
-                                                    className="px-4 py-2 rounded bg-neutral-800 text-white hover:bg-neutral-600 transition"
-                                                    onClick={() => {
-                                                        // 1️⃣ 檢查是否有空值
-                                                        const hasEmpty = editPlan.exercises.some(
-                                                            (ex) => ex.name.trim() === '' || ex.reps === '' || ex.weight === ''
-                                                        );
-
-                                                        if (hasEmpty) {
-                                                            alert('請填寫所有動作名稱和組數/次數！');
-                                                            return;
-                                                        }
-
-                                                        setMockPlans((prev) =>
-                                                            prev.map((p) => (p.id === editPlan.id ? editPlan : p))
-                                                        );
-                                                        setEditPlan(null);
-                                                    }}
+                                                className="px-4 py-2 flex justify-end rounded bg-neutral-800 text-white hover:bg-neutral-600 transition"
+                                                onClick={handleSavePlan}
                                                 >
-                                                    儲存修改
+                                                {editPlan?.id === null ? '新增' : '儲存修改'}
                                                 </button>
+
                                             </div>
                                         </div>
                                     </div>
                                 )}
-                                {deleteId && (
+
+                            {/* 刪除計劃 */}
+                            {deleteId && (
                                     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50"
                                         onClick={(e) => {
-
                                             if (e.target === e.currentTarget) {
                                                 setDeleteId(null);
                                             }
                                         }}
                                     >
                                         <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-sm">
-
                                             <h2 className="text-lg font-bold mb-4">確認刪除</h2>
                                             <p>你確定要刪除這個訓練計劃嗎？這個動作無法復原。</p>
                                             <div className="flex justify-end mt-6 space-x-3">
@@ -599,10 +667,7 @@ function DashBoardPage(){
                                                 </button>
                                                 <button
                                                     className="px-4 py-2 rounded bg-red-600 text-white hover:bg-red-700 transition"
-                                                    onClick={() => {
-                                                        setMockPlans(prev => prev.filter(p => p.id !== deleteId));
-                                                        setDeleteId(null);
-                                                    }}
+                                                    onClick={() => handleDeletePlan(deleteId)}
                                                 >
                                                     確認刪除
                                                 </button>
@@ -611,9 +676,12 @@ function DashBoardPage(){
                                     </div>
                                 )}
                             </div>  
+
+                            {/* 點擊卡片modal */}
                             {selectedPlan && (
                                 <div
                                     onClick={(e) => {
+
                                     if (e.target === e.currentTarget) setSelectedPlan(null);
                                     }}
                                     className="fixed inset-0 z-50 bg-black bg-opacity-50 flex justify-center items-center"
@@ -622,14 +690,19 @@ function DashBoardPage(){
                                     {/* Header */}
                                     <div className="p-6 border-b">
                                         <h2 className="text-xl font-bold">{selectedPlan.title}</h2>
-                                        <p className="text-gray-600">日期：{selectedPlan.date}</p>
+                                        <p className="text-gray-600">日期：{selectedPlan.plannedDate}</p>
                                     </div>
 
                                     {/* Scrollable Content */}
-                                    <div className="flex-1 overflow-y-auto px-6 py-4 space-y-4">
-                                        {selectedPlan.exercises.map((ex) => (
-                                        <div key={ex.id}>
-                                            <p className="font-semibold mb-1">{ex.name}</p>
+                                    <div className="flex-1 overflow-y-auto px-6 py-4 pl-10 space-y-4">
+                                        {selectedPlan.exercises.map((exercise, index) => (
+                                        <div key={`${exercise}-${index}`}>
+                                            <p className="font-semibold mr-10 mb-1 flex justify-between">
+                                                {exercise.typeName}
+                                                <span className="text-xs px-2 py-1 bg-gray-100 text-gray-600 rounded-full">
+                                                    {exercise.mainTag}
+                                                </span>
+                                            </p>    
                                             <div className="text-sm text-gray-700">
                                             <div className="grid grid-cols-4 gap-x-2 font-medium text-gray-500 mb-1">
                                                 <span>次數</span>
@@ -637,8 +710,8 @@ function DashBoardPage(){
                                                 <span>重量</span>
                                                 <span></span>
                                             </div>
-                                                {ex.sets.map((set) => (
-                                                    <div key={set.id} className="grid grid-cols-4 gap-x-2">
+                                                {exercise.sets.map((set, setIndex) => (
+                                                    <div key={`${set.reps}-${set.weight}-${setIndex}`} className="grid grid-cols-4 gap-x-2">
                                                     <span>{set.reps}</span>
                                                     <span className="text-center">×</span>
                                                     <span>{set.weight}</span>
@@ -654,8 +727,7 @@ function DashBoardPage(){
                                     <div className="p-4 border-t flex justify-end space-x-3">
                                         <button
                                         onClick={() => {
-                                            //console.log('開始訓練：', selectedPlan);
-                                            setSelectedPlan(null);
+                                            handleStartTraining(selectedPlan.id);
                                         }}
                                         className="px-4 py-2 w-full rounded bg-neutral-800 text-white hover:bg-neutral-600 transition"
                                         >
@@ -666,9 +738,57 @@ function DashBoardPage(){
                             </div>
                             )}
 
-    
-                            
+                            {/* 新增動作modal */}
+                            {showExerciseModal && (
+                                <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center" 
+                                    onClick={e => e.target === e.currentTarget && setShowExerciseModal(false)}>
+                                    <div className="bg-white w-full max-w-md max-h-[80vh] rounded-lg p-4 flex flex-col">
+                                    <h2 className="text-lg font-bold mb-4">選擇訓練動作</h2>
 
+                                        {/* 主分類 tag 列 */}
+                                        <div className="flex flex-wrap gap-2 mb-4">
+                                            {['All', 'Chest', 'Leg', 'Back', 'Shoulder'].map(tag => (
+                                            <button
+                                                key={tag === 'All' ? null : tag}
+                                                onClick={() => setSelectedMainTag(tag)}
+                                                className={`px-3 py-1 rounded-full border ${selectedMainTag === tag ? 'bg-neutral-800 text-white' : 'bg-gray-100'}`}
+                                            >
+                                                {tag}
+                                            </button>
+                                            ))}
+                                        </div>
+
+                                        {/* 搜尋框 */}
+                                        <input
+                                            type="text"
+                                            value={searchKeyword}
+                                            onChange={(e) => setSearchKeyword(e.target.value)}
+                                            className="px-4 py-2 border rounded mb-3"
+                                            placeholder="搜尋動作"
+                                        />
+
+                                        {/* 動作清單 */}
+                                        <div className="overflow-y-auto flex-1 pr-1 space-y-2">
+                                            {filteredWorkoutTypes.length === 0 ? (
+                                            <p className="text-sm text-gray-500">找不到符合的動作</p>
+                                            ) : (
+                                            filteredWorkoutTypes.map((type) => (
+                                                <button
+                                                key={type.id}
+                                                className="w-full px-4 py-2 text-left bg-gray-50 hover:bg-gray-100 rounded border text-sm"
+                                                onClick={() => {
+                                                    addExerciseFromType(type);
+                                                    setShowExerciseModal(false);
+                                                }}
+                                                >
+                                                {type.name}
+                                                </button>
+                                            ))
+                                            )}
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>
@@ -677,8 +797,8 @@ function DashBoardPage(){
                 <div className="mb-10">
                     <div className="flex justify-between items-center mb-6">
                         <h2 className="text-xl font-bold text-warm-black">訓練日曆</h2>
-                        <p>這裡要把日曆縮小放左邊然後旁邊加入一個區塊可能用來顯示上次訓練內容並且當點選日曆上日期顯示內容，日曆如果太小，不能對其左邊內容，可以在日曆下方放當周頻率，然後日曆可以思考要不要有不同呈現方式</p>
-                        <p>然後日曆用標籤顯示，標籤顏色代表自定義內容，像是腿、胸推日、上胸日等等，同樣在旁邊顯示標籤對應內容</p>
+                        {/* <p>這裡要把日曆縮小放左邊然後旁邊加入一個區塊可能用來顯示上次訓練內容並且當點選日曆上日期顯示內容，日曆如果太小，不能對其左邊內容，可以在日曆下方放當周頻率，然後日曆可以思考要不要有不同呈現方式</p>
+                        <p>然後日曆用標籤顯示，標籤顏色代表自定義內容，像是腿、胸推日、上胸日等等，同樣在旁邊顯示標籤對應內容</p> */}
                         <div className="flex items-center space-x-3">
                             <button id="prevMonth" className="p-2 rounded-full bg-warm-gray-100 hover:bg-warm-gray-200 transition-colors">
                                 <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">

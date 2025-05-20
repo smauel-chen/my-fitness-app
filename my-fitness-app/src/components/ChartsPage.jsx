@@ -1,4 +1,6 @@
 import { useRef, useEffect, useState } from "react";
+import axiosInstance from '../api/axiosInstance.js';
+
 import {
     Chart,
     BarController,
@@ -33,21 +35,14 @@ Chart.register(
 );
 
 
-function ChartsPage() {
+function ChartsPage({userId}) {
     const [timePeriod, setTimePeriod] = useState('week');  // 預設是 weekly
     const [dateRange, setDateRange] = useState('current'); // 預設是 current
-    const [selectedExercise, setSelectedExercise] = useState('benchPress');
-
+    
     const [height, setHeight] = useState('');
     const [weight, setWeight] = useState('');
     const [showResult, setShowResult] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
-
-    // 新增 weight 資訊
-    const [weightChangeText, setWeightChangeText] = useState('-1.2 kg');
-    const [weightRateText, setWeightRateText] = useState('-0.3 kg/week');
-    const [weightChangeColor, setWeightChangeColor] = useState('text-green-600');
-
 
     const [bmi, setBmi] = useState({
         value: '',
@@ -148,28 +143,57 @@ function ChartsPage() {
         setShowTdeeResult(true);
     };
 
-    // Ref 定義
+    // tag統計圖
     const tagFrequencyRef = useRef(null);
+    const tagFrequencyChartRef = useRef(null);
+    
+    //雷達圖 肌群平衡
     const muscleGroupRef = useRef(null);
-    const volumeProgressionRef = useRef(null);
-    const weightTrendRef = useRef(null);
+    const muscleGroupChartRef = useRef(null);
 
-    // Chart 實例
-    let tagFrequencyChart;
-    let muscleGroupChart;
-    let volumeProgressionChart;
-    let weightTrendChart;
+    // 動作進步圖
+    const volumeProgressionRef = useRef(null);
+    const volumeChartRef = useRef(null);
+    const [selectedExerciseTypeId, setSelectedExerciseTypeId] = useState(null);
+    const [volumeRecordCount, setVolumeRecordCount] = useState(5); // 預設查詢 5 筆紀錄
+    const [exerciseOptions, setExerciseOptions] = useState([]);
+
+    // 取得所有可選動作列表
+    useEffect(() => {
+        axiosInstance
+        .get("/workout-types")
+        .then((res) => {
+            setExerciseOptions(res.data);
+        })
+        .catch((err) => console.error("取得動作選項失敗", err));
+    }, []);
+
+    //體重變化圖
+    const weightTrendRef = useRef(null);
+    const weightTrendChartRef = useRef(null);
+    const [weightChangeText, setWeightChangeText] = useState('');
+    const [weightRateText, setWeightRateText] = useState('');
+    const [weightChangeColor, setWeightChangeColor] = useState('text-green-600');
+
 
     useEffect(() => {
         // Tag frequency chart
-        const tagCtx = tagFrequencyRef.current.getContext('2d');
-        tagFrequencyChart = new Chart(tagCtx, {
+        if (!tagFrequencyRef.current) return;
+        if (!muscleGroupRef.current) return;
+        if (!volumeProgressionRef.current) return;
+        if (!weightTrendRef.current) return;
+
+        const tagFrequencyCtx = tagFrequencyRef.current.getContext('2d');
+        if(tagFrequencyChartRef.current){
+            tagFrequencyChartRef.current.destroy();
+        }
+        tagFrequencyChartRef.current = new Chart(tagFrequencyCtx, {
             type: 'bar',
             data: {
-                labels: chartData.tags.weekly.labels,
-                datasets: [{
+                    labels: [],
+                    datasets: [{
                     label: 'Frequency',
-                    data: chartData.tags.weekly.data,
+                    data: [],
                     backgroundColor: '#1a1a1a',
                     borderColor: '#1a1a1a',
                     borderWidth: 1
@@ -191,14 +215,17 @@ function ChartsPage() {
         });
     
         // Muscle group chart
-        const muscleCtx = muscleGroupRef.current.getContext('2d');
-        muscleGroupChart = new Chart(muscleCtx, {
-            type: 'radar',
+        const muscleGroupCtx = muscleGroupRef.current.getContext("2d");
+        if (muscleGroupChartRef.current) {
+            muscleGroupChartRef.current.destroy();
+        }
+        muscleGroupChartRef.current = new Chart(muscleGroupCtx, {
+            type: "radar",
             data: {
-                labels: chartData.muscleGroups.weekly.labels,
+                labels: [],
                 datasets: [{
                     label: 'Sets',
-                    data: chartData.muscleGroups.weekly.data,
+                    data: [],
                     backgroundColor: 'rgba(26, 26, 26, 0.2)',
                     borderColor: '#1a1a1a',
                     borderWidth: 2,
@@ -210,52 +237,63 @@ function ChartsPage() {
                 maintainAspectRatio: false,
                 scales: {
                     r: {
-                        beginAtZero: true
-                    }
-                }
-            }
-        });
-    
-        // Volume progression chart
-        const volumeCtx = volumeProgressionRef.current.getContext('2d');
-        volumeProgressionChart = new Chart(volumeCtx, {
-            type: 'line',
-            data: {
-                labels: chartData.exerciseVolume.benchPress.weekly.labels,
-                datasets: [{
-                    label: 'Volume (reps × weight)',
-                    data: chartData.exerciseVolume.benchPress.weekly.data,
-                    backgroundColor: 'rgba(26, 26, 26, 0.1)',
-                    borderColor: '#1a1a1a',
-                    borderWidth: 2,
-                    fill: true,
-                    tension: 0.1
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    y: {
-                        beginAtZero: false,
-                        title: {
-                            display: true,
-                            text: 'Total Volume'
+                        beginAtZero: true,
+                        pointLabels: {//new
+                            font: {
+                              size: 12
+                            }
                         }
                     }
                 }
             }
         });
     
+        // Volume progression chart
+        const volumeProgressCtx = volumeProgressionRef.current.getContext("2d");
+        if (volumeChartRef.current) {
+            volumeChartRef.current.destroy();
+        }
+        volumeChartRef.current = new Chart(volumeProgressCtx, {
+          type: 'line',
+          data: {
+            labels: [],
+            datasets: [{
+              label: 'Volume (reps × weight)',
+              data: [],
+              backgroundColor: 'rgba(26, 26, 26, 0.1)',
+              borderColor: '#1a1a1a',
+              borderWidth: 2,
+              fill: true,
+              tension: 0.1
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+              y: {
+                beginAtZero: false,
+                title: {
+                  display: true,
+                  text: 'Total Volume'
+                }
+              }
+            }
+          }
+        });
+    
         // Weight trend chart
-        const weightCtx = weightTrendRef.current.getContext('2d');
-        weightTrendChart = new Chart(weightCtx, {
-            type: 'line',
+        const weightTrendCtx = weightTrendRef.current.getContext("2d");
+        if (weightTrendChartRef.current) {
+            weightTrendChartRef.current.destroy();
+        }   
+        weightTrendChartRef.current = new Chart(weightTrendCtx, {
+            type: "line",
             data: {
-                labels: chartData.weightTrend.weekly.labels,
+                labels: [],
                 datasets: [{
-                    label: 'Weight (kg)',
-                    data: chartData.weightTrend.weekly.data,
+                    label: "Weight (kg)",
+                    data: [],
                     backgroundColor: 'rgba(52, 211, 153, 0.1)',
                     borderColor: '#34D399',
                     borderWidth: 2,
@@ -277,209 +315,166 @@ function ChartsPage() {
                 }
             }
         });
-    
-        // ✅ 清理圖表 (避免重複渲染時報錯)
+
         return () => {
-            tagFrequencyChart.destroy();
-            muscleGroupChart.destroy();
-            volumeProgressionChart.destroy();
-            weightTrendChart.destroy();
+            if (tagFrequencyChartRef.current) {
+                tagFrequencyChartRef.current.destroy();
+            }
+            if (muscleGroupChartRef.current) {
+                muscleGroupChartRef.current.destroy();
+            }
+            if (volumeChartRef.current) {
+                volumeChartRef.current.destroy();
+            }
+            if (weightTrendChartRef.current) {
+                weightTrendChartRef.current.destroy();
+            }
         };
     
     }, []);
-    
-        // Sample data for charts
-        const chartData = {
-            // Tag frequency data
-            tags: {
-                weekly: {
-                    labels: ['Strength', 'Cardio', 'Upper Body', 'Lower Body', 'Core', 'Flexibility'],
-                    data: [4, 2, 3, 2, 1, 1]
-                },
-                twoWeeks: {
-                    labels: ['Strength', 'Cardio', 'Upper Body', 'Lower Body', 'Core', 'Flexibility'],
-                    data: [8, 4, 6, 5, 3, 2]
-                },
-                monthly: {
-                    labels: ['Strength', 'Cardio', 'Upper Body', 'Lower Body', 'Core', 'Flexibility'],
-                    data: [16, 8, 12, 10, 6, 4]
-                }
-            },
-            
-            // Muscle group data
-            muscleGroups: {
-                weekly: {
-                    labels: ['Chest', 'Back', 'Legs', 'Shoulders', 'Arms', 'Core'],
-                    data: [12, 10, 15, 8, 9, 6]
-                },
-                twoWeeks: {
-                    labels: ['Chest', 'Back', 'Legs', 'Shoulders', 'Arms', 'Core'],
-                    data: [24, 22, 30, 18, 20, 14]
-                },
-                monthly: {
-                    labels: ['Chest', 'Back', 'Legs', 'Shoulders', 'Arms', 'Core'],
-                    data: [48, 45, 60, 36, 42, 30]
-                }
-            },
-            
-            // Exercise volume data
-            exerciseVolume: {
-                benchPress: {
-                    weekly: {
-                        labels: ['Mon', 'Wed', 'Fri'],
-                        data: [1600, 1650, 1700]
-                    },
-                    twoWeeks: {
-                        labels: ['Week 1-Mon', 'Week 1-Wed', 'Week 1-Fri', 'Week 2-Mon', 'Week 2-Wed', 'Week 2-Fri'],
-                        data: [1550, 1600, 1650, 1600, 1650, 1700]
-                    },
-                    monthly: {
-                        labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
-                        data: [1550, 1650, 1700, 1750]
-                    }
-                },
-                squat: {
-                    weekly: {
-                        labels: ['Tue', 'Thu', 'Sat'],
-                        data: [2400, 2450, 2500]
-                    },
-                    twoWeeks: {
-                        labels: ['Week 1-Tue', 'Week 1-Thu', 'Week 1-Sat', 'Week 2-Tue', 'Week 2-Thu', 'Week 2-Sat'],
-                        data: [2350, 2400, 2450, 2400, 2450, 2500]
-                    },
-                    monthly: {
-                        labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
-                        data: [2350, 2450, 2500, 2550]
-                    }
-                },
-                deadlift: {
-                    weekly: {
-                        labels: ['Mon', 'Fri'],
-                        data: [3000, 3050]
-                    },
-                    twoWeeks: {
-                        labels: ['Week 1-Mon', 'Week 1-Fri', 'Week 2-Mon', 'Week 2-Fri'],
-                        data: [2950, 3000, 3000, 3050]
-                    },
-                    monthly: {
-                        labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
-                        data: [2950, 3000, 3050, 3100]
-                    }
-                },
-                shoulderPress: {
-                    weekly: {
-                        labels: ['Wed', 'Sat'],
-                        data: [1200, 1250]
-                    },
-                    twoWeeks: {
-                        labels: ['Week 1-Wed', 'Week 1-Sat', 'Week 2-Wed', 'Week 2-Sat'],
-                        data: [1150, 1200, 1200, 1250]
-                    },
-                    monthly: {
-                        labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
-                        data: [1150, 1200, 1250, 1300]
-                    }
-                },
-                pullUp: {
-                    weekly: {
-                        labels: ['Tue', 'Thu', 'Sun'],
-                        data: [800, 850, 900]
-                    },
-                    twoWeeks: {
-                        labels: ['Week 1-Tue', 'Week 1-Thu', 'Week 1-Sun', 'Week 2-Tue', 'Week 2-Thu', 'Week 2-Sun'],
-                        data: [750, 800, 800, 800, 850, 900]
-                    },
-                    monthly: {
-                        labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
-                        data: [750, 800, 850, 900]
-                    }
-                }
-            },
-            
-            // Weight trend data
-            weightTrend: {
-                weekly: {
-                    labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-                    data: [78.5, 78.3, 78.4, 78.2, 78.0, 77.8, 77.7]
-                },
-                twoWeeks: {
-                    labels: ['Week 1-Mon', 'Week 1-Wed', 'Week 1-Fri', 'Week 1-Sun', 'Week 2-Tue', 'Week 2-Thu', 'Week 2-Sat'],
-                    data: [79.0, 78.8, 78.6, 78.5, 78.2, 78.0, 77.7]
-                },
-                monthly: {
-                    labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
-                    data: [79.5, 79.0, 78.5, 77.7]
-                }
-            }
-        };
 
-        // Update all charts based on time period
-        function updateAllCharts() {
-            updateTagFrequencyChart();
-            updateMuscleGroupChart();
-            updateVolumeChart();
-            updateWeightTrendChart();
-        }
+    // submit new weight record
+    const [inputDate, setInputDate] = useState(() => new Date().toISOString().split("T")[0]);
+    const [inputWeight, setInputWeight] = useState('');
+    const [inputMessage, setInputMessage] = useState('');
 
-        // Update tag frequency chart
-        function updateTagFrequencyChart() {
-            const data = chartData.tags[timePeriod];
-            tagFrequencyChart.data.labels = data.labels;
-            tagFrequencyChart.data.datasets[0].data = data.data;
-            tagFrequencyChart.update();
+    const submitTodayWeight = async (date, weight) => {
+        try {
+            await axiosInstance.post(`/user/${userId}/weight`, { date, weight });
+            await updateWeightTrendChart(); // 送出後立即更新圖表
+        } catch (err) {
+            alert('提交體重失敗');
         }
-                                
-        // Update muscle group chart
-        function updateMuscleGroupChart() {
-            const data = chartData.muscleGroups[timePeriod];
-            muscleGroupChart.data.labels = data.labels;
-            muscleGroupChart.data.datasets[0].data = data.data;
-            muscleGroupChart.update();
-        }
-
-    const updateVolumeChart = () => {
-        const data = chartData.exerciseVolume[selectedExercise][timePeriod];
-        volumeProgressionChart.data.labels = data.labels;
-        volumeProgressionChart.data.datasets[0].data = data.data;
-        volumeProgressionChart.update();
     };
-        
 
-        // Update weight trend chart
-        function updateWeightTrendChart() {
-            const data = chartData.weightTrend[timePeriod];
-            weightTrendChart.data.labels = data.labels;
-            weightTrendChart.data.datasets[0].data = data.data;
-            weightTrendChart.update();
-            
-            // Update weight change info
-            const weightData = data.data;
-            const firstWeight = weightData[0];
-            const lastWeight = weightData[weightData.length - 1];
-            const weightChange = lastWeight - firstWeight;
-            const weightChangeAbs = Math.abs(weightChange).toFixed(1);
-            const weightChangeDirection = weightChange < 0 ? 'loss' : 'gain';
-            const weightChangeColor = weightChange < 0 ? 'text-green-600' : 'text-red-600';
+    const periodMap = {
+        week: 'weekly',
+        twoWeeks: 'two-weeks',
+        month: 'monthly'
+    };
+    
+    //更新圖表當不同選項被觸發
+    useEffect(() => {
+        updateAllCharts();
+        // if (muscleGroupRef.current) {
+        //     updateMuscleGroupChart();
+        // }
+    }, [timePeriod, dateRange, userId]);
 
-            
-            // Calculate rate of change
-            let rateText = '';
-            if (timePeriod === 'week') {
-                rateText = `${weightChange < 0 ? '-' : '+'}${weightChangeAbs} kg/week`;
-            } else if (timePeriod === 'twoWeeks') {
-                const weeklyRate = (weightChange / 2).toFixed(1);
-                rateText = `${weightChange < 0 ? '-' : '+'}${Math.abs(weeklyRate)} kg/week`;
-            } else {
-                const weeklyRate = (weightChange / 4).toFixed(1);
-                rateText = `${weightChange < 0 ? '-' : '+'}${Math.abs(weeklyRate)} kg/week`;
-            }
+    const updateAllCharts = async () => {
+        await updateTagFrequencyChart();
+        await updateMuscleGroupChart();
+        await updateWeightTrendChart();
+    };
 
-            // 更新 React 狀態
-            setWeightChangeText(`${weightChange < 0 ? '-' : '+'}${weightChangeAbs} kg`);
-            setWeightRateText(rateText);
-            setWeightChangeColor(weightChangeColor);
+    useEffect(() => {
+        if (volumeProgressionRef.current && selectedExerciseTypeId) {
+            updateVolumeChart();
         }
+    }, [selectedExerciseTypeId, volumeRecordCount, userId]); 
 
+    //更新圖表方法     
+    const updateTagFrequencyChart = async () => {
+        try {
+            const res = await axiosInstance.get(`/user/${userId}/charts/tag-frequency?period=${periodMap[timePeriod]}`);
+            const data = res.data;
+            const labels = Object.keys(data);
+            const values = Object.values(data);
+        
+            // 更新圖表資料
+            if(tagFrequencyChartRef.current){
+                tagFrequencyChartRef.current.data.labels = labels;
+                tagFrequencyChartRef.current.data.datasets[0].data = values;
+                tagFrequencyChartRef.current.update();
+            }
+        } catch (err) {
+            alert('讀取 Tag 頻率資料失敗：' + (err.response?.data?.message || err.message));
+        }
+    };
+                      
+    const updateMuscleGroupChart = async () => {
+        try {
+            const res = await axiosInstance.get(`/user/${userId}/charts/muscle-balance`, {
+            params: { period: periodMap[timePeriod] }
+        });
+      
+            const data = res.data;
+            const labels = Object.keys(data);
+            const values = Object.values(data);
+        
+            if (muscleGroupChartRef.current) {
+                muscleGroupChartRef.current.data.labels = labels;
+                muscleGroupChartRef.current.data.datasets[0].data = values;
+                muscleGroupChartRef.current.update();
+            }
+        } catch (err) {
+          console.error("肌群雷達圖資料載入失敗", err);
+        }
+    };
+
+    const updateVolumeChart = async () => {
+        if(!selectedExerciseTypeId) return;
+        try {
+            const res = await axiosInstance.get(`/user/${userId}/charts/volume-progress`, {
+                params: {
+                typeId: selectedExerciseTypeId,
+                count: volumeRecordCount
+                }
+            });
+        
+            const data = res.data;
+            const labels = data.map(entry => entry.date);
+            const volumes = data.map(entry => entry.volume);
+        
+            if (volumeChartRef.current) {
+              volumeChartRef.current.data.labels = labels;
+              volumeChartRef.current.data.datasets[0].data = volumes;
+              volumeChartRef.current.update();
+            }
+        } catch (err) {
+          console.error("取得 Volume 圖表資料失敗", err);
+        }
+    };
+      
+    const updateWeightTrendChart = async () => {
+        try {
+            const period = periodMap[timePeriod];
+            const res = await axiosInstance.get(`/user/${userId}/charts/weight-trend`, {
+                params: { period }  // weekly, two-weeks, monthly
+            });
+            const data = res.data;
+            const labels = data.map(d => d.date);
+            const weights = data.map(d => d.weight);
+    
+            if (weightTrendChartRef.current) {
+                weightTrendChartRef.current.data.labels = labels;
+                weightTrendChartRef.current.data.datasets[0].data = weights;
+                weightTrendChartRef.current.update();
+            }
+            
+            // 更新加減體重狀態文字
+            if (weights.length > 1) {
+                
+                const change = weights[weights.length - 1] - weights[0];
+                const perWeek = period === 'two-weeks'
+                    ? change / 2
+                    : period === 'monthly'
+                    ? change / 4
+                    : change;
+    
+                setWeightChangeText(`${change >= 0 ? '+' : ''}${change.toFixed(1)} kg`);
+                setWeightRateText(`${perWeek >= 0 ? '+' : ''}${perWeek.toFixed(1)} kg/week`);
+                setWeightChangeColor(change < 0 ? 'text-green-600' : 'text-red-600');
+            } else {
+                setWeightChangeText('—');
+                setWeightRateText('—');
+                setWeightChangeColor('text-gray-500');
+            }
+            
+        } catch (err) {
+            console.error("體重圖表更新失敗", err);
+        }
+    };
 
     return (
     <div>
@@ -506,9 +501,10 @@ function ChartsPage() {
                                                 }`}
                                                 onClick={() => {
                                                     setTimePeriod('month');
-                                                    updateAllCharts();  // 注意：這要自己定義 function
-                                                }}
-                                                // className="time-filter-btn px-4 py-2 rounded-lg bg-gray-200 text-gray-700 hover:bg-gray-300" data-period="month"
+                                                }
+                                                
+                                            }
+
                                         >
                                             Monthly</button>
                                         <button className={`time-filter-btn px-4 py-2 rounded-lg ${
@@ -516,18 +512,14 @@ function ChartsPage() {
                                                 }`}
                                                 onClick={() => {
                                                     setTimePeriod('twoWeeks');
-                                                    updateAllCharts();  // 注意：這要自己定義 function
                                                 }}
-                                        // className="time-filter-btn px-4 py-2 rounded-lg bg-gray-200 text-gray-700 hover:bg-gray-300" data-period="twoWeeks"
                                         >Two Weeks</button>
                                         <button className={`time-filter-btn px-4 py-2 rounded-lg ${
                                                     timePeriod === 'week' ? 'bg-gray-700 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
                                                 }`}
                                                 onClick={() => {
                                                     setTimePeriod('week');
-                                                    updateAllCharts();  // 注意：這要自己定義 function
                                                 }}
-                                        // className="time-filter-btn active px-4 py-2 rounded-lg" data-period="week"
                                         >Weekly</button>
                                     </div>
                                 </div>
@@ -536,7 +528,6 @@ function ChartsPage() {
                                         value={dateRange}
                                         onChange={(e) => {
                                             setDateRange(e.target.value);
-                                            updateAllCharts();  // 更新時傳目前的狀態
                                         }}
                                         className="px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-500"
                                         id="date-selector"
@@ -571,20 +562,34 @@ function ChartsPage() {
                             {/* <!-- Exercise Volume Chart --> */}
                             <div className="bg-white rounded-lg shadow-sm p-4">
                                 <h2 className="text-lg font-semibold mb-4">Exercise Volume Progression</h2>
-                                <div className="mb-3">
-                                    <label className="block text-gray-700 mb-2">Select Exercise</label>
+                                <div className="mb-3 grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label className="block text-gray-700 mb-1">Select Exercise</label>
+                                        <select
+                                            value={selectedExerciseTypeId || ''}
+                                            onChange={(e) => {setSelectedExerciseTypeId(e.target.value)}}
+                                            className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-500"
+                                        >
+                                            <option value="">
+                                                請選擇動作
+                                            </option>
+                                            {exerciseOptions.map((opt) => (
+                                            <option key={opt.id} value={opt.id}>{opt.name}</option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                    <div>
+                                    <label className="block text-gray-700 mb-1">Record Count</label>
                                     <select
-                                        value={selectedExercise}
-                                        onChange={(e) => setSelectedExercise(e.target.value)}
-                                        id="exercise-selector"
+                                        value={volumeRecordCount}
+                                        onChange={(e) => setVolumeRecordCount(Number(e.target.value))}
                                         className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-500"
                                     >
-                                        <option value="benchPress">Bench Press</option>
-                                        <option value="squat">Squat</option>
-                                        <option value="deadlift">Deadlift</option>
-                                        <option value="shoulderPress">Shoulder Press</option>
-                                        <option value="pullUp">Pull Up</option>
+                                        <option value={5}>Last 5</option>
+                                        <option value={10}>Last 10</option>
+                                        <option value={30}>Last 30</option>
                                     </select>
+                                    </div>
                                 </div>
                                 <div className="chart-container">
                                     <canvas ref={volumeProgressionRef} id="volumeProgressionChart"></canvas>
@@ -601,16 +606,64 @@ function ChartsPage() {
                                     <div className="flex justify-between items-center">
                                         <div>
                                             <span className="text-gray-600">Change:</span>
-                                            <span id="weight-change" className={`font-semibold text-green-600 ${weightChangeColor}`}>
+                                            <span id="weight-change" className={`font-semibold ${weightChangeColor}`}>
                                                 {weightChangeText}
                                             </span>
                                         </div>
                                         <div>
                                             <span className="text-gray-600">Rate:</span>
-                                            <span id="weight-rate" className={`font-semibold text-green-600 ${weightChangeColor}`}>
+                                            <span id="weight-rate" className={`font-semibold ${weightChangeColor}`}>
                                                 {weightRateText}
                                             </span>
                                         </div>
+                                    </div>
+                                </div>
+                            
+                                {/* <!-- Weight Input Form --> */}
+                                <div className="mt-4 border-t pt-4">
+                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                                        <div>
+                                            <label className="block text-gray-700 text-sm mb-1">Date</label>
+                                            <input 
+                                            type="date" 
+                                            id="weight-date" 
+                                            value={inputDate}
+                                            onChange={(e) => setInputDate(e.target.value)}
+                                            className="w-full px-3 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-500"/>
+                                        </div>
+                                        <div>
+                                            <label className="block text-gray-700 text-sm mb-1">Weight (kg)</label>
+                                            <input 
+                                            type="number" 
+                                            id="weight-value" 
+                                            step="0.1" 
+                                            value={inputWeight}
+                                            onChange={(e) => setInputWeight(e.target.value)}
+                                            className="w-full px-3 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-500" 
+                                            placeholder="e.g. 75.5"/>
+                                        </div>
+                                        <div className="flex items-end">
+                                            <button 
+                                            id="add-weight-btn" 
+                                            onClick={() => {
+                                                if (!inputWeight || isNaN(Number(inputWeight))) {
+                                                    setInputMessage('請輸入有效的體重');
+                                                    return;
+                                                }
+                                                submitTodayWeight(inputDate, parseFloat(inputWeight));
+                                                setInputMessage(' 體重已記錄！');
+                                                setInputWeight('');
+                                            }}
+                                            className="w-full bg-gray-900 text-white px-4 py-2 rounded-lg hover:bg-gray-800 transition">
+                                                Add Record
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div 
+                                    id="weight-input-message"   
+                                    className={`mt-2 text-sm ${inputMessage ? 'text-green-600' : 'text-red-600'}`}
+                                    >  
+                                        {inputMessage}
                                     </div>
                                 </div>
                             </div>

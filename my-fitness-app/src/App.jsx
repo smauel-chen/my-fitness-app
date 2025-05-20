@@ -1,7 +1,6 @@
 import { Routes, Route, Navigate, useNavigate } from "react-router-dom";
 import RegisterForm from "./components/RegisterForm";
 
-import Dashboard from "./components/Dashboard";
 import LoginForm from "./components/LoginForm";
 import DemoDashboard from "./components/DemoDashboard";
 
@@ -10,7 +9,7 @@ import DashBoardPage from "./components/DashBoardPage";
 
 import WorkoutRecordPage from "./components/WorkoutRecordPage"
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import axiosInstance from "./api/axiosInstance"
 import DashboardLayout from "./components/DashBoardLayout";
 import WorkoutTypePage from "./components/WorkoutTypePage";
@@ -32,38 +31,14 @@ function ProtectedRoute({ children }) {
 
 function App() {
   const navigate = useNavigate();
-  const [sessions, setSessions] = useState([]);
-  const [userId, setUserId] = useState(null);
-  const [workoutTypes, setWorkoutTypes] = useState([]);
 
-  const fetchSessions = () => {
-    if (!userId) return;
-    axiosInstance
-      .get(`/user/${userId}/sessions`)
-      .then((res) => {setSessions(res.data);
-        console.log(res);
-      })
-      .catch((err) => console.error("無法取得 sessions", err));
-  };
-
-  const fetchWorkoutTypes = () => {
-    axiosInstance
-        .get("/workout-types")
-        .then((res) => setWorkoutTypes(res.data))
-        .catch((err) => console.error("Cannot fetch workout types", err));
-  }
-  
-  useEffect(() => {
-    const storedId = localStorage.getItem("userId");
-    if (storedId) setUserId(storedId);
-    fetchWorkoutTypes();
-  }, []); 
-
-  useEffect(() => {
-    if (userId) fetchSessions(); // 只有當 userId 不為 null 時才呼叫
-  }, [userId]); // 🔥 加上這一段 useEffect，監聽 userId 的變化
+  const [userId, setUserId] = useState(() => {
+    return localStorage.getItem("userId");
+  });
 
   const handleLoginSuccess = (userId) => {
+    localStorage.setItem("userId", userId);
+
     setUserId(userId);
     navigate("/dashboard"); // 登入成功轉導主頁
   };
@@ -86,13 +61,12 @@ function App() {
           }  
         >
           {/* 儀表板 */}
-          <Route index element={<DashBoardPage />}/>
+          <Route index element={<DashBoardPage userId = {userId}/>}/>
+          <Route path="page" element={<WorkoutRecordPage userId = {userId}/>}/>
           {/* 動作資料庫 */}  
           <Route path="types" element={<WorkoutTypePage />} />
-          {/* <Route path="charts" element={<Dashboard userId = {userId}/>}/> */}
-          <Route path="charts" element={<ChartsPage />}/>
+          <Route path="charts" element={<ChartsPage userId={userId}/>}/>
           <Route path="demo" element={<DemoDashboard />}/>
-          <Route path="page" element={<WorkoutRecordPage/>}/>
         </Route>
       </Routes>
     </div>

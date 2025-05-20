@@ -66,7 +66,7 @@ public class WorkoutSession {
         return id;
     }
 
-    public void setNote(String title){
+    public void setTitle(String title){
         this.title = title;
     }
 

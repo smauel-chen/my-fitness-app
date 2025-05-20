@@ -56,8 +56,5 @@ public class TemplateSessionController {
         workoutTemplateService.updateTemplate(templateId, dto);
         return ResponseEntity.noContent().build();
     }
-
-
-
-
+    
 }

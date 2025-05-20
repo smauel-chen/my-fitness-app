@@ -39,7 +39,7 @@ public class WorkoutSessionController {
 
     @Operation(
     summary = "新增訓練課表",
-    description = "為指定的使用者新增一筆訓練課表，內容包含訓練日期、備註與多筆訓練組合"
+    description = "為指定的使用者新增一筆訓練課表，內容包含訓練title、與多筆訓練組合"
     )
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "成功建立訓練課表"),
@@ -76,13 +76,13 @@ public class WorkoutSessionController {
     }
 
     @PutMapping("/session/{sessionId}")
-    public ResponseEntity<Void> updateSession(
+    public ResponseEntity<CreateSessionRequestDTO> updateSession(
         @PathVariable Long id,
         @PathVariable Long sessionId,
         @RequestBody CreateSessionRequestDTO dto
     ) {
         workoutSessionService.updateSession(id, sessionId, dto);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok(dto);
     }
 
     @GetMapping("/session/{sessionId}")
@@ -127,11 +127,11 @@ public class WorkoutSessionController {
     //chart 3
     @GetMapping("/charts/volume-progress")
     public List<VolumeProgressDTO> getVolumeProgress(
-        @PathVariable Long userId,
+        @PathVariable Long id,
         @RequestParam Long typeId,
-        @RequestParam int conunt
+        @RequestParam int count
     ) {
-        return workoutSessionService.getVolumeProgress(userId, typeId, conunt);
+        return workoutSessionService.getVolumeProgress(id, typeId, count);
     }
     
     // @GetMapping("/user/{id}/workouts/progress")

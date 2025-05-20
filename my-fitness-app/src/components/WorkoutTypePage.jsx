@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import axiosInstance from '../api/axiosInstance.js';
 import './WorkoutTypePage.css'
 
 function WorkoutTypePage() {
@@ -10,68 +11,36 @@ function WorkoutTypePage() {
     const tagList = ['All', 'Chest', 'Back', 'Legs', 'Shoulders', 'Arms', 'Core', 'Cardio'];
     
     const [searchTerm, setSearchTerm] = useState('');
-
-    const workouts = [
-        {
-            id: 1,
-            name: 'Barbell Squat',
-            tags: ['Legs', 'Compound', 'Barbell']
-        },
-        {
-            id: 2,
-            name: 'Leg Press',
-            tags: ['Legs', 'Compound', 'Machine']
-        },
-        {
-            id: 3,
-            name: 'Romanian Deadlift',
-            tags: ['Legs', 'Hamstrings', 'Barbell']
-        },
-        {
-            id: 4,
-            name: 'Walking Lunges',
-            tags: ['Legs', 'Unilateral', 'Dumbbell']
-        },
-        {
-            id: 5,
-            name: 'Leg Press6',
-            tags: ['Legs', 'Compound', 'Machine']
-        },
-        {
-            id: 6,
-            name: 'Leg Press5',
-            tags: ['Legs', 'Compound', 'Dumbbell']
-        },
-        {
-            id: 7,
-            name: 'Leg Press4',
-            tags: ['Legs', 'Compound', 'Machine']
-        },
-        {
-            id: 8,
-            name: 'Leg Press3',
-            tags: ['Legs', 'Compound', 'Dumbbell']
-        },
-        {
-            id: 9,
-            name: 'Leg Press2',
-            tags: ['Legs', 'Compound', 'Dumbbell']
-        },
-        {
-            id: 10,
-            name: 'Leg Press1',
-            tags: ['Legs', 'Compound', 'Machine']
-        }
-        // ...其餘
-    ];
-
-    const filteredWorkouts = workouts.filter(workout => {
-        const matchesSearch = workout.name.toLowerCase().includes(searchTerm.toLowerCase());
-        const matchesTag = activeTag === 'All' || workout.tags.includes(activeTag);
-        return matchesSearch && matchesTag;
-    });
+    const [workouts, setWorkouts] = useState([]);
 
     
+    
+    
+    //獲得所有動作
+    useEffect(() => {
+        axiosInstance.get('/workout-types')
+        .then(res => setWorkouts(res.data))
+        .catch(err => alert("無法取得動作資料" + err.message));
+    }, []);  
+    
+    const filteredWorkouts = workouts.filter(workout => {
+        const matchesSearch = workout.name.toLowerCase().includes(searchTerm.toLowerCase());
+        const matchesTag = activeTag === 'All' || workout.mainTag.includes(activeTag);
+        return matchesSearch && matchesTag;
+    });
+    
+    const [addWorkout, setAddWorkout] = useState(false);
+    
+    //pagination分頁功能
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 15;
+
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    const paginatedWorkouts = filteredWorkouts.slice(startIndex, endIndex);
+    const totalPages = Math.ceil(filteredWorkouts.length / itemsPerPage);
+
+
     return (
         <div>
             <div className=" bg-gray-100">
@@ -83,7 +52,9 @@ function WorkoutTypePage() {
                             <h1 className="text-2xl font-bold text-gray-900">動作資料庫</h1>
                         </div>
                         <div className="flex items-center space-x-4">
-                            <button className="px-4 py-2 bg-gray-800 text-white rounded-md hover:bg-gray-700 transition-colors flex items-center">
+                            <button 
+                                onClick={() => setAddWorkout(true)}
+                                className="px-4 py-2 bg-gray-800 text-white rounded-md hover:bg-gray-700 transition-colors flex items-center">
                                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                                 </svg>
@@ -209,14 +180,6 @@ function WorkoutTypePage() {
                                         {tag}
                                     </span>
                                 ))}
-                                {/* <span className="tag px-3 py-1 bg-gray-200 text-gray-700 rounded-full text-sm cursor-pointer">All</span>
-                                <span className="tag px-3 py-1 bg-gray-200 text-gray-700 rounded-full text-sm cursor-pointer">Chest</span>
-                                <span className="tag px-3 py-1 bg-gray-200 text-gray-700 rounded-full text-sm cursor-pointer">Back</span>
-                                <span className="tag active px-3 py-1 bg-gray-200 text-gray-700 rounded-full text-sm cursor-pointer">Legs</span>
-                                <span className="tag px-3 py-1 bg-gray-200 text-gray-700 rounded-full text-sm cursor-pointer">Shoulders</span>
-                                <span className="tag px-3 py-1 bg-gray-200 text-gray-700 rounded-full text-sm cursor-pointer">Arms</span>
-                                <span className="tag px-3 py-1 bg-gray-200 text-gray-700 rounded-full text-sm cursor-pointer">Core</span>
-                                <span className="tag px-3 py-1 bg-gray-200 text-gray-700 rounded-full text-sm cursor-pointer">Cardio</span> */}
                             </div>
                         </div>
                         
@@ -225,68 +188,84 @@ function WorkoutTypePage() {
                             {/* <!-- List Header --> */}
                             <div className="bg-gray-50 px-6 py-3 border-b border-gray-200">
                                 <div className="flex justify-between items-center">
-                                    <h2 className="text-lg font-medium text-gray-800">Leg Workouts</h2>
-                                    <div className="text-sm text-gray-500">12 workouts found</div>
+                                    <h2 className="text-lg font-medium text-gray-800">{"All Workouts"}</h2>
+                                    <div className="text-sm text-gray-500">{filteredWorkouts.length}</div>
                                 </div>
                             </div>
                             
                             {/* <!-- List Items --> */}
                             <ul className="divide-y divide-gray-100">
-                                {filteredWorkouts.map((workout) => (
-                                    <li key={workout.id} className="workout-item p-4 animate-fade-in" style={{ animationDelay : '0.05s'}}>
-                                        <div className="flex items-center justify-between">
-                                            <div className="flex items-center">
-                                                <div className="h-10 w-10 rounded-full icon-bg-strength flex items-center justify-center text-white mr-4">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3" />
-                                                    </svg>
-                                                </div>
-                                                <div>
-                                                    <h3 className="font-medium text-gray-800">{workout.name}</h3>
-                                                    <div className="flex flex-wrap gap-1 mt-1">
-                                                        {workout.tags.map(tag => (
-                                                            <span
-                                                                key={tag}
-                                                                className="px-2 py-0.5 bg-gray-100 text-xs text-gray-600 rounded"
-                                                            >
-                                                                {tag}
-                                                            </span>
-                                                        ))}
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <button className="px-3 py-1.5 bg-gray-800 text-white text-sm rounded hover:bg-gray-700 transition-colors">Details</button>
+                            {paginatedWorkouts.map((workout) => (
+                                <li key={workout.id} className="workout-item p-4 animate-fade-in">
+                                <div className="flex items-center justify-between">
+                                    <div className="flex items-center">
+                                    <div className="h-10 w-10 rounded-full icon-bg-strength flex items-center justify-center text-white mr-4">
+                                        {/* Icon */}
+                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3" />
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <h3 className="font-medium text-gray-800">{workout.name}</h3>
+                                        <div className="flex flex-wrap gap-1 mt-1">
+                                        <span className="px-2 py-0.5 bg-gray-200 text-xs text-gray-700 rounded">{workout.mainTag}</span>
+                                        {workout.secondaryTags.map((tag) => (
+                                            <span key={tag} className="px-2 py-0.5 bg-gray-100 text-xs text-gray-600 rounded">
+                                            {tag}
+                                            </span>
+                                        ))}
                                         </div>
-                                    </li>
-                                ))}
+                                    </div>
+                                    </div>
+                                    <button className="px-3 py-1.5 bg-gray-800 text-white text-sm rounded hover:bg-gray-700 transition-colors">Details</button>
+                                </div>
+                                </li>
+                            ))}
                             </ul>
+
                             
                             {/* <!-- Pagination --> */}
                             <div className="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
                                 <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
                                     <div>
                                         <p className="text-sm text-gray-700">
-                                            Showing <span className="font-medium">1</span> to <span className="font-medium">12</span> of <span className="font-medium">12</span> results
+                                            Showing <span className="font-medium">{startIndex + 1}</span> to <span className="font-medium">{endIndex}</span> of <span className="font-medium">{itemsPerPage}</span> results
                                         </p>
                                     </div>
-                                    <div>
-                                        <nav className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
-                                            <a href="#" className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
-                                                <span className="sr-only">Previous</span>
-                                                <svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                                                    <path fillRule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clipRule="evenodd" />
-                                                </svg>
-                                            </a>
-                                            <a href="#" className="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-gray-800 text-sm font-medium text-white hover:bg-gray-700">
-                                                1
-                                            </a>
-                                            <a href="#" className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
-                                                <span className="sr-only">Next</span>
-                                                <svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                                                    <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
-                                                </svg>
-                                            </a>
-                                        </nav>
+                                        <div className="flex justify-center mt-2 mb-2 space-x-1">
+                                        <button
+                                            disabled={currentPage === 1}
+                                            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                                            className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
+                                        >
+                                            <svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                                <path fillRule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clipRule="evenodd" />
+                                            </svg>
+                                        </button>
+
+                                        {[...Array(totalPages)].map((_, index) => (
+                                            <button
+                                            key={index}
+                                            onClick={() => setCurrentPage(index + 1)}
+                                            // className={`px-3 py-1 rounded border 
+                                            className={`relative inline-flex items-center px-4 py-2 border border-gray-300 bg-gray-800 text-sm font-medium hover:bg-gray-700"
+                                                ${
+                                                currentPage === index + 1 ? 'bg-gray-800 text-white' : 'bg-white text-gray-700'
+                                            }`}
+                                            >
+                                            {index + 1}
+                                            </button>
+                                        ))}
+
+                                        <button
+                                            disabled={currentPage === totalPages}
+                                            onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+                                            className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
+                                        >
+                                            <svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                                <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
+                                            </svg>
+                                        </button>
                                     </div>
                                 </div>
                             </div>

@@ -3,7 +3,9 @@ package com.example.demo.controller;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -18,6 +20,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import org.springframework.web.bind.annotation.PutMapping;
+
 
 @RestController
 @RequestMapping("/workout-types")
@@ -66,6 +70,22 @@ public class WorkoutTypeController {
     public ResponseEntity<?> getAllWorkoutTypes(){
         List<WorkoutTypeDTO> workoutTypeDTOs = workoutTypeService.getAllTypes();
         return ResponseEntity.ok(workoutTypeDTOs);  
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteWorkoutType(@PathVariable Long id) {
+        workoutTypeService.deleteCustomedWorkoutType(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @DeleteMapping("/admin/cleanup")
+    public ResponseEntity<String> deleteUnusedWorkoutTypes() {
+        return ResponseEntity.ok("刪除成功，共刪除 "+ workoutTypeService.deleteFromAdmin());
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<WorkoutType> putMethodName(@PathVariable Long id) {
+        return ResponseEntity.ok(workoutTypeService.temp(id));
     }
 
 }

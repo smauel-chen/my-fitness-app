@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CreateSessionRequestDTO {
-        private String title;
+    private String title;
     private LocalDate date;
     private List<CreateExerciseDTO> exercises = new ArrayList<>();
 } 

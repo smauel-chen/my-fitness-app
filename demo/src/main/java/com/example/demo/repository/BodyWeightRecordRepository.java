@@ -11,4 +11,5 @@ import com.example.demo.entity.BodyWeightRecord;
 public interface BodyWeightRecordRepository extends JpaRepository<BodyWeightRecord, Long> {
     List<BodyWeightRecord> findByUserIdAndDateAfterOrderByDateAsc(Long userId, LocalDate date);
     Optional<BodyWeightRecord> findByUserIdAndDate(Long userId, LocalDate date);
+    List<BodyWeightRecord> findByUserIdOrderByDateAsc(Long userId);
 }

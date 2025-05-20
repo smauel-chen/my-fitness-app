@@ -44,9 +44,10 @@ public class TemplateSessionService {
     public List<TemplateSummaryDTO> getTemplateSummariesByUserId(Long userId) {
         userRepository.findById(userId).orElseThrow(() -> new ApiException(ApiErrorCode.USER_NOT_FOUND, "沒有找到使用者", HttpStatus.NOT_FOUND));
 
-        return templateSessionRepository.findByUserId(userId).stream().map(template -> {
+        return templateSessionRepository.findByUserIdOrderByPlannedDateDesc(userId).stream().map(template -> {
             List<ExerciseSummaryDTO> exerciseSummaryDTOs = template.getExercises().stream()
                 .map(exercise -> new ExerciseSummaryDTO(
+                    exercise.getWorkoutType().getId(),
                     exercise.getWorkoutType().getName(),
                     exercise.getSets().size()
                 )).collect(Collectors.toList());
@@ -79,13 +80,16 @@ public class TemplateSessionService {
         
         List<TemplateExercise> exercises = templateDto.getExercises().stream().map(exerciseDTO -> {
             WorkoutType type = workoutTypeRepository.findById(exerciseDTO.getTypeId()).orElseThrow(() -> new ApiException(ApiErrorCode.TYPE_NOT_FOUND, "找不到動作", HttpStatus.NOT_FOUND));
+
             TemplateExercise exercise = new TemplateExercise(type);
+            exercise.setWorkoutTemplate(template);
             List<TemplateSet> sets = exerciseDTO.getSets().stream().map(setDto -> {
                 TemplateSet set = new TemplateSet(setDto.getReps(), setDto.getWeight());
                 set.setExercise(exercise);
                 return set;
             }).collect(Collectors.toList());
-            exercise.setSets(sets);
+
+            exercise.setSets(sets); 
             return exercise;
         }).collect(Collectors.toList());
 
@@ -100,6 +104,7 @@ public class TemplateSessionService {
             .orElseThrow(() -> new ApiException(ApiErrorCode.TEMPLATE_NOT_FOUND, "找不到訓練卡片", HttpStatus.NOT_FOUND));
 
         List<ExerciseDetailDTO> exercises = template.getExercises().stream().map(ex -> {
+            Long typeId = ex.getWorkoutType().getId();
             String typeName = ex.getWorkoutType().getName();
             String mainTag = ex.getWorkoutType().getMainTag();
 
@@ -107,7 +112,7 @@ public class TemplateSessionService {
                 .map(set -> new SetDetailDTO(set.getReps(), set.getWeight()))
                 .collect(Collectors.toList());
 
-            return new ExerciseDetailDTO(typeName, mainTag, sets);
+            return new ExerciseDetailDTO(typeId, typeName, mainTag, sets);
         }).collect(Collectors.toList());
 
         return new TemplateDetailDTO(
@@ -153,15 +158,13 @@ public class TemplateSessionService {
             return exercise;
         }).collect(Collectors.toList());
     
-        template.setExercises(newExercises);
-    
+        for(TemplateExercise exercise:newExercises){
+            template.getExercises().add(exercise);
+        }
+        // template.setExercises(newExercises);
+     
         // 5. 儲存（因為已是持久化物件，會自動追蹤變化）
         templateSessionRepository.save(template);
     }
-    
-    
-
-
-    // 接下來會陸續補上 create / getOne / delete / update
 }
 

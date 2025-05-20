@@ -8,4 +8,5 @@ import com.example.demo.entity.TemplateSession;
 
 public interface TemplateSessionRepository extends JpaRepository<TemplateSession, Long> {
     List<TemplateSession> findByUserId(Long userId);
+    List<TemplateSession> findByUserIdOrderByPlannedDateDesc(Long userId);
 }
