@@ -75,7 +75,7 @@ function LandingPage() {
                             <path d="M20.24 12.24a6 6 0 0 0-8.49-8.49L9 6l1.5 1.5L12 6l-1.5-1.5a3 3 0 1 1 4.24 4.24L12 12l-1.5-1.5L9 12l2.25 2.25a6 6 0 0 0 8.49-8.49z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                             <path d="M3.76 12.24a6 6 0 0 0 8.49 8.49L15 18l-1.5-1.5L12 18l1.5 1.5a3 3 0 1 1-4.24-4.24L12 12l1.5 1.5L15 12l-2.25-2.25a6 6 0 0 0-8.49 8.49z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                         </svg>
-                        <span className="text-xl font-bold">FitTrack</span>
+                        <span className="text-xl font-bold">Lift Log</span>
                     </div>
                     <div className="hidden md:flex space-x-8">
                         <a href="#intro" onClick={(e) => handleSmoothScroll(e, '#intro')} className={`nav-link px-1 py-2 hover:text-black transition-colors ${activeSection === 'intro' ? 'active' : ''}`}>介紹</a>
